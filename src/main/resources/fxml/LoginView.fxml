@@ -1,10 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.control.Label?>
+<AnchorPane prefHeight="500.0" prefWidth="400.0" styleClass="main-container"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.login.LoginController">
+    <children>
+        <VBox alignment="CENTER" spacing="15.0" layoutX="50.0" layoutY="30.0" prefWidth="300.0">
+            <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../images/logo.png" />
+                </image>
+            </ImageView>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="app.LoginController"
-            prefHeight="400.0" prefWidth="600.0">
+            <Label text="SISTEMA DE LICENCIAS" styleClass="header-label" />
+            <Label text="Por favor, identifíquese" styleClass="subheader-label" />
+
+            <Separator prefWidth="200.0" />
+
+            <Label text="Tipo de Usuario:" styleClass="field-label" />
+            <ComboBox fx:id="comboUsuario" prefWidth="280.0" promptText="Seleccione rol...">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Administrador" />
+                        <String fx:value="Analista" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+
+            <TextField fx:id="txtUsuario" promptText="Nombre de usuario" styleClass="input-field" />
+            <PasswordField fx:id="txtPassword" promptText="Contraseña" styleClass="input-field" />
+
+            <Button fx:id="btnLogin" onAction="#handleLogin" prefHeight="40.0" prefWidth="280.0"
+                    text="INGRESAR AL SISTEMA" styleClass="login-button" />
+
+            <Hyperlink text="¿Olvidó su contraseña?" styleClass="forgot-link" />
+        </VBox>
+    </children>
 </AnchorPane>

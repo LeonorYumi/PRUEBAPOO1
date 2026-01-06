@@ -1,0 +1,98 @@
+/* --- ESTILOS GENERALES Y LOGIN --- */
+.main-container {
+    -fx-background-color: white;
+    -fx-border-color: #dcdde1;
+    -fx-border-width: 1;
+}
+
+.header-label {
+    -fx-font-size: 20px;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-text-fill: #2f3640;
+}
+
+.subheader-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.input-field {
+    -fx-background-radius: 5;
+    -fx-padding: 8;
+    -fx-border-color: #dcdde1;
+    -fx-border-radius: 5;
+}
+
+.input-field:focused {
+    -fx-border-color: #3498db;
+    -fx-background-color: #f9f9f9;
+}
+
+.login-button {
+    -fx-background-color: #2980b9;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.login-button:hover {
+    -fx-background-color: #3498db;
+}
+
+.field-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #2f3640;
+}
+
+/* --- ESTILOS DE NAVEGACIÓN (ANALISTA Y ADMIN) --- */
+
+.menu-item-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2c3e50;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 15; /* Un poco más de espacio para comodidad */
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-border-color: #dcdde1;
+    -fx-border-width: 0 0 1 0; /* Solo línea inferior sutil */
+}
+
+.menu-item-button:hover {
+    -fx-background-color: #dcdde1;
+    -fx-text-fill: #2980b9;
+    -fx-font-weight: bold;
+}
+
+/* Estilo específico para las etiquetas de título en el Sidebar */
+.sidebar-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7f8c8d;
+    -fx-padding: 10 0 5 0;
+}
+
+/* Botón de Cerrar Sesión (Rojo para diferenciarlo) */
+.button-logout {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+}
+
+.button-logout:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* --- ESTILO PARA TABLAS (Lo usaremos pronto en Gestión de Usuarios) --- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #dcdde1;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f1f2f6;
+    -fx-text-fill: #2f3640;
+}
