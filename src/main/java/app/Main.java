@@ -11,7 +11,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoginView.fxml"));
         Scene scene = new Scene(loader.load());
-        scene.getStylesheets().add(getClass().getResource("/css/app.css").toExternalForm());
+        //scene.getStylesheets().add(getClass().getResource("/css/app.css").toExternalForm());
         primaryStage.setTitle("SISTEMA DE ENTREGA DE LICENCIAS");
         // icon.png must be placed in resources/images/
         try {
