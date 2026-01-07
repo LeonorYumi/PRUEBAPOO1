@@ -4,7 +4,8 @@ module com.example.demo {
     requires java.sql;
     requires org.kordamp.bootstrapfx.core;
 
-    // REQUIRES PARA PDFBOX Y MANEJO DE GRÁFICOS
+
+// REQUIRES PARA PDFBOX Y MANEJO DE GRÁFICOS
     requires org.apache.pdfbox;
     requires java.desktop;
 

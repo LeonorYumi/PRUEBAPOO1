@@ -10,21 +10,33 @@ public class Requisito {
 
     public Requisito() {}
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Integer getId() {
+        return id; }
+    public void setId(Integer id) {
+        this.id = id; }
 
-    public Integer getTramiteId() { return tramiteId; }
-    public void setTramiteId(Integer tramiteId) { this.tramiteId = tramiteId; }
+    public Integer getTramiteId() {
+        return tramiteId; }
+    public void setTramiteId(Integer tramiteId) {
+        this.tramiteId = tramiteId; }
 
-    public boolean isCertificadoMedico() { return certificadoMedico; }
-    public void setCertificadoMedico(boolean certificadoMedico) { this.certificadoMedico = certificadoMedico; }
+    public boolean isCertificadoMedico() {
+        return certificadoMedico; }
+    public void setCertificadoMedico(boolean certificadoMedico) {
+        this.certificadoMedico = certificadoMedico; }
 
-    public boolean isPago() { return pago; }
-    public void setPago(boolean pago) { this.pago = pago; }
+    public boolean isPago() {
+        return pago; }
+    public void setPago(boolean pago) {
+        this.pago = pago; }
 
-    public boolean isMultas() { return multas; }
-    public void setMultas(boolean multas) { this.multas = multas; }
+    public boolean isMultas() {
+        return multas; }
+    public void setMultas(boolean multas) {
+        this.multas = multas; }
 
-    public String getObservaciones() { return observaciones; }
-    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+    public String getObservaciones() {
+        return observaciones; }
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones; }
 }

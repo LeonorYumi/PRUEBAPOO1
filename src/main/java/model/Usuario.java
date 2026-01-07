@@ -14,27 +14,43 @@ public class Usuario {
 
     public Usuario() {}
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Integer getId() {
+        return id; }
+    public void setId(Integer id) {
+        this.id = id; }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getNombre() {
+        return nombre; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre; }
 
-    public String getCedula() { return cedula; }
-    public void setCedula(String cedula) { this.cedula = cedula; }
+    public String getCedula() {
+        return cedula; }
+    public void setCedula(String cedula) {
+        this.cedula = cedula; }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getUsername() {
+        return username; }
+    public void setUsername(String username) {
+        this.username = username; }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getPasswordHash() {
+        return passwordHash; }
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash; }
 
-    public String getRol() { return rol; }
-    public void setRol(String rol) { this.rol = rol; }
+    public String getRol() {
+        return rol; }
+    public void setRol(String rol) {
+        this.rol = rol; }
 
-    public boolean isActivo() { return activo; }
-    public void setActivo(boolean activo) { this.activo = activo; }
+    public boolean isActivo() {
+        return activo; }
+    public void setActivo(boolean activo) {
+        this.activo = activo; }
 
-    public OffsetDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+    public OffsetDateTime getCreatedAt() {
+        return createdAt; }
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt; }
 }

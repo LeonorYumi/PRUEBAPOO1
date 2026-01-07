@@ -10,12 +10,18 @@ public class Reporte {
 
     public Reporte() {}
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Integer getId() {
+        return id; }
+    public void setId(Integer id) {
+        this.id = id; }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getDescripcion() {
+        return descripcion; }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion; }
 
-    public OffsetDateTime getFecha() { return fecha; }
-    public void setFecha(OffsetDateTime fecha) { this.fecha = fecha; }
+    public OffsetDateTime getFecha() {
+        return fecha; }
+    public void setFecha(OffsetDateTime fecha) {
+        this.fecha = fecha; }
 }

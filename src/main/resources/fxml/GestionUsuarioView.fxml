@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="ui.controllers.GestionUsuariosController" padding="10" stylesheets="@../styles/style.css">
+    <top><Label text="Gestión de Usuarios" styleClass="header-label"/></top>
+    <center>
+        <TableView fx:id="tableUsuarios" styleClass="table-view">
+            <columns>
+                <TableColumn text="ID" prefWidth="50"/>
+                <TableColumn text="Nombre" prefWidth="200"/>
+                <TableColumn text="Username" prefWidth="120"/>
+                <TableColumn text="Rol" prefWidth="100"/>
+                <TableColumn text="Activo" prefWidth="80"/>
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox spacing="8" alignment="CENTER_RIGHT">
+            <Button text="Crear Usuario" onAction="#onCrearUsuario"/>
+            <Button text="Activar/Desactivar" onAction="#onToggleActivo"/>
+        </HBox>
+    </bottom>
+</BorderPane>
