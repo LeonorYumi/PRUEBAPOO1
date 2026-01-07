@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.analista.DetalleTramiteController">
+    <children>
+        <ScrollPane fitToWidth="true" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox spacing="20" style="-fx-padding: 20;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="ID Trámite:" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="txtBusquedaId" prefWidth="100"/>
+                        <Button text="🔍 Buscar" onAction="#handleBuscar" />
+                    </HBox>
+
+                    <TitledPane text="Datos del Solicitante" collapsible="false">
+                        <VBox spacing="10">
+                            <Label fx:id="lblNombre" text="Nombre: ---" />
+                            <Label fx:id="lblCedula" text="Cédula: ---" />
+                            <Label fx:id="lblEstadoActual" text="Estado: ---" />
+                        </VBox>
+                    </TitledPane>
+
+                    <Button fx:id="btnGenerarLicencia" text="Generar Licencia" onAction="#handleGenerarLicencia" />
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

@@ -10,11 +10,10 @@
 
     <top>
         <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 10;">
-            <Label text="PANEL DE CONTROL - ANALISTA" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+            <Label text="PANEL DE CONTROL - ANALISTA DE MATRICULACIÓN" style="-fx-text-fill: white; -fx-font-weight: bold;" />
             <Region HBox.hgrow="ALWAYS" />
-
             <Button fx:id="btnCerrarSesion" text="Cerrar Sesión" onAction="#handleCerrarSesion"
-                    styleClass="login-button" style="-fx-background-color: #e74c3c;" />
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;" />
         </HBox>
     </top>
 
@@ -22,28 +21,57 @@
         <VBox spacing="10" style="-fx-background-color: #ecf0f1; -fx-padding: 15;" prefWidth="220.0">
             <Label text="OPERACIONES" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" />
 
-            <Button text="👤 Registrar Solicitante" maxWidth="Infinity" styleClass="menu-item-button" />
-            <Button text="📋 Verificar Requisitos" maxWidth="Infinity" styleClass="menu-item-button" />
-            <Button text="Registrar Exámenes" maxWidth="Infinity" styleClass="menu-item-button" />
+            <Button text="👤 Registrar Solicitante"
+                    onAction="#handleIrARegistro"
+                    maxWidth="Infinity"
+                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+
+            <Button text="📋 Verificar Requisitos"
+                    onAction="#handleIrAVerificar"
+                    maxWidth="Infinity"
+                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+
+            <Button text="📝 Registrar Exámenes"
+                    onAction="#handleIrAExamenes"
+                    maxWidth="Infinity"
+                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
 
             <Separator />
-
             <Label text="SEGUIMIENTO" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" />
-            <Button text="🔍 Gestión de Trámites" maxWidth="Infinity" styleClass="menu-item-button" />
-            <Button text="Generar Licencia" maxWidth="Infinity" styleClass="menu-item-button" />
+
+            <Button text="🔍 Gestión de Trámites"
+                    onAction="#handleIrAGestion"
+                    maxWidth="Infinity"
+                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+
+            <Button text="📑 Detalle de Trámite"
+                    onAction="#handleIrADetalleBusqueda"
+                    maxWidth="Infinity"
+                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+
+            <Separator />
+            <Label text="FINALIZACIÓN" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" />
+
+            <Button text="Generar Licencia"
+                    onAction="#handleIrAGenerarLicencia"
+                    maxWidth="Infinity"
+                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-background-color: #d5dbdb;" />
         </VBox>
     </left>
 
     <center>
         <StackPane fx:id="contentArea" style="-fx-background-color: white; -fx-padding: 20;">
-            <VBox alignment="CENTER" spacing="10">
-                <ImageView fitHeight="150.0" fitWidth="150.0" opacity="0.2">
-                    <image>
-                        <Image url="@../images/logo.png" />
-                    </image>
-                </ImageView>
-                <Label text="Seleccione una operación del menú lateral" style="-fx-text-fill: #bdc3c7; -fx-font-size: 18px;" />
-            </VBox>
+            <children>
+                <VBox alignment="CENTER" spacing="15">
+                    <ImageView fitHeight="150.0" fitWidth="150.0" opacity="0.15">
+                        <image>
+                            <Image url="@../images/logo.png" />
+                        </image>
+                    </ImageView>
+                    <Label text="Bienvenido, Analista" style="-fx-font-size: 24px; -fx-text-fill: #34495e; -fx-font-weight: bold;" />
+                    <Label text="Seleccione una operación del menú lateral para comenzar" style="-fx-text-fill: #bdc3c7; -fx-font-size: 16px;" />
+                </VBox>
+            </children>
         </StackPane>
     </center>
 </BorderPane>

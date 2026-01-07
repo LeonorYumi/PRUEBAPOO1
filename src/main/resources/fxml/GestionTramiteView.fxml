@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" style="-fx-padding: 20; -fx-background-color: white;"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ui.analista.GestionTramiteController">
+
+    <Label text="4.4 Gestión de Trámites" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Filtrar por estado:"/>
+        <ComboBox fx:id="comboFiltroEstado" onAction="#handleFiltrar" prefWidth="150"/>
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <Button text="Ver Detalle" onAction="#handleVerDetalle" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+        <Button text="Generar Licencia" onAction="#handleGenerarLicencia" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+    </HBox>
+
+    <TableView fx:id="tablaTramites" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="40"/>
+            <TableColumn fx:id="colCedula" text="CEDULA" prefWidth="100"/>
+            <TableColumn fx:id="colNombre" text="NOMBRE" prefWidth="150"/>
+            <TableColumn fx:id="colTipo" text="TIPO" prefWidth="40"/>
+            <TableColumn fx:id="colFecha" text="FECHA SOLICITUD" prefWidth="150"/>
+            <TableColumn fx:id="colEstado" text="ESTADO" prefWidth="110"/>
+
+            <TableColumn fx:id="colAcciones" text="ACCIONES RÁPIDAS" prefWidth="250"/>
+        </columns>
+    </TableView>
+</VBox>
