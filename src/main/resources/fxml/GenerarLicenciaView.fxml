@@ -3,10 +3,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ui.analista.GenerarLicenciaController">
+            fx:controller="ui.admin.GenerarLicenciaController">
     <children>
         <VBox spacing="25" alignment="TOP_CENTER" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" style="-fx-padding: 30; -fx-background-color: #f8f9fa;">
@@ -47,27 +46,19 @@
                         <Label text="FECHA VENCIMIENTO:" GridPane.rowIndex="3" style="-fx-font-size: 11; -fx-text-fill: #95a5a6;" />
                         <Label fx:id="lblFechaVencimiento" text="--" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-text-fill: #c0392b; -fx-font-weight: bold;" />
                     </GridPane>
-
-                    <Label layoutX="350" layoutY="240" text="SISTEMA ANT v2.0" style="-fx-font-size: 9; -fx-text-fill: #bdc3c7;" />
                 </children>
             </Pane>
 
-            <VBox spacing="15" alignment="CENTER" maxWidth="500">
-                <Label text="Nota: La licencia solo se puede generar para trámites con estado 'APROBADO'."
-                       style="-fx-font-style: italic; -fx-text-fill: #7f8c8d; -fx-font-size: 12;" />
+            <HBox spacing="15" alignment="CENTER">
+                <Button fx:id="btnRegresar" text="⬅ Regresar" onAction="#handleRegresar" prefWidth="120"
+                        style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;" />
 
-                <HBox spacing="15" alignment="CENTER">
-                    <Button text="⬅ Regresar" onAction="#handleRegresar" prefWidth="120"
-                            style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand;" />
+                <Button fx:id="btnGenerar" text="💾 Generar y Guardar" onAction="#handleGenerar" prefWidth="180"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
 
-                    <Button fx:id="btnGenerar" text="💾 Generar y Guardar" onAction="#handleGenerar" prefWidth="180"
-                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
-
-                    <Button fx:id="btnExportar" text="📄 Exportar PDF" onAction="#handleExportarPDF" disable="true" prefWidth="140"
-                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;" />
-                </HBox>
-            </VBox>
-
+                <Button fx:id="btnExportar" text="📄 Exportar PDF" onAction="#handleExportarPDF" disable="true" prefWidth="140"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;" />
+            </HBox>
         </VBox>
     </children>
 </AnchorPane>

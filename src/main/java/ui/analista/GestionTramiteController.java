@@ -3,10 +3,16 @@ package ui.analista;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import model.Tramite;
 import service.RequisitoService;
+import java.io.IOException;
 
 public class GestionTramiteController {
 
@@ -14,7 +20,6 @@ public class GestionTramiteController {
     @FXML private TableColumn<Tramite, Integer> colId;
     @FXML private TableColumn<Tramite, String> colCedula, colNombre, colTipo, colFecha, colEstado;
     @FXML private TableColumn<Tramite, Void> colAcciones;
-
     @FXML private ComboBox<String> comboFiltroEstado;
 
     private final RequisitoService requisitoService = new RequisitoService();
@@ -37,9 +42,9 @@ public class GestionTramiteController {
         colEstado.setCellValueFactory(cellData -> cellData.getValue().estadoProperty());
     }
 
-
     @FXML
     private void handleFiltrar() {
+        if (comboFiltroEstado == null) return;
         String filtro = comboFiltroEstado.getValue();
         if (filtro == null || filtro.equals("Todos")) {
             tablaTramites.setItems(listaMaster);
@@ -51,12 +56,12 @@ public class GestionTramiteController {
         }
     }
 
-
     @FXML
     private void handleVerDetalle() {
         Tramite seleccionado = tablaTramites.getSelectionModel().getSelectedItem();
         if (seleccionado != null) {
-            mostrarAlerta("Información", "Detalle del trámite ID: " + seleccionado.getId() + "\nSolicitante: " + seleccionado.getNombre());
+            mostrarAlerta("Detalle del Trámite",
+                    "ID: " + seleccionado.getId() + "\nSolicitante: " + seleccionado.getNombre());
         } else {
             mostrarAlerta("Atención", "Por favor, seleccione un trámite de la tabla.");
         }
@@ -66,38 +71,75 @@ public class GestionTramiteController {
     private void handleGenerarLicencia() {
         Tramite seleccionado = tablaTramites.getSelectionModel().getSelectedItem();
 
-        if (seleccionado != null) {
-            if ("aprobado".equalsIgnoreCase(seleccionado.getEstado())) {
-                // Mensaje corregido y útil
-                mostrarAlerta("Trámite Aprobado",
-                        "Para emitir la licencia física de " + seleccionado.getNombre() +
-                                ":\n1. Diríjase a la sección 'Detalle de Trámite'.\n" +
-                                "2. Ingrese el ID: " + seleccionado.getId() + "\n" +
-                                "3. Presione el botón 'Generar Licencia' al final del formulario.");
-            } else {
-                mostrarAlerta("Atención", "Este trámite aún no ha sido aprobado.");
+        if (seleccionado == null) {
+            mostrarAlerta("Atención", "Por favor, seleccione un trámite de la tabla.");
+            return;
+        }
+
+        if ("aprobado".equalsIgnoreCase(seleccionado.getEstado())) {
+            try {
+                // 1. Cargamos la vista de generación de licencia
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
+                Parent root = loader.load();
+
+                // 2. Pasamos los datos al controlador correspondiente
+                Object ctrl = loader.getController();
+
+                // Verificamos el paquete del controlador para hacer el cast correcto
+                if (ctrl instanceof ui.admin.GenerarLicenciaController) {
+                    ((ui.admin.GenerarLicenciaController) ctrl).initData(seleccionado);
+                } else if (ctrl instanceof ui.analista.GenerarLicenciaController) {
+                    ((ui.analista.GenerarLicenciaController) ctrl).initData(seleccionado);
+                }
+
+                // 3. Abrimos como ventana POP-UP independiente
+                Stage stage = new Stage();
+                stage.setTitle("Emisión de Licencia Física - " + seleccionado.getNombre());
+
+                // Bloquea la ventana principal hasta que se cierre esta
+                stage.initModality(Modality.APPLICATION_MODAL);
+
+                stage.setScene(new Scene(root));
+                stage.setResizable(false);
+                stage.showAndWait();
+
+                // Refrescamos la tabla por si el estado cambió a 'licencia_emitida'
+                // cargarDatosReales();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                mostrarAlerta("Error", "No se pudo abrir la ventana de emisión.");
             }
         } else {
-            mostrarAlerta("Atención", "Por favor, seleccione un trámite de la tabla.");
+            mostrarAlerta("Acción denegada",
+                    "Solo se puede generar la licencia si el trámite está en estado 'aprobado'.\n" +
+                            "Estado actual: " + seleccionado.getEstado());
+        }
+    }
+
+    private void configurarFiltros() {
+        if (comboFiltroEstado != null) {
+            comboFiltroEstado.setItems(FXCollections.observableArrayList(
+                    "Todos", "pendiente", "en_examenes", "aprobado", "licencia_emitida"
+            ));
+            comboFiltroEstado.setValue("Todos");
         }
     }
 
     private void agregarBotonesAccion() {
         colAcciones.setCellFactory(param -> new TableCell<>() {
             private final Button btnValidar = new Button("Validar");
-            private final HBox pane = new HBox(5, btnValidar);
-
             {
+                btnValidar.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white;");
                 btnValidar.setOnAction(event -> {
                     Tramite t = getTableView().getItems().get(getIndex());
                     try {
-                        // Marcamos requisitos básicos como completados
-                        requisitoService.guardarRequisitos(t.getId(), true, true, true, "Validación desde gestión", null);
+                        // Simula la validación de requisitos
+                        requisitoService.guardarRequisitos(t.getId(), true, true, true, "Validación Automática", null);
                         t.setEstado("en_examenes");
                         getTableView().refresh();
-                        mostrarAlerta("Éxito", "Requisitos validados. El trámite pasó a 'en_examenes'.");
                     } catch (Exception e) {
-                        mostrarAlerta("Error", e.getMessage());
+                        mostrarAlerta("Error", "No se pudo validar: " + e.getMessage());
                     }
                 });
             }
@@ -105,24 +147,24 @@ public class GestionTramiteController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : pane);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    Tramite t = getTableView().getItems().get(getIndex());
+                    // Solo mostramos validar si está pendiente
+                    setGraphic("pendiente".equalsIgnoreCase(t.getEstado()) ? btnValidar : null);
+                }
             }
         });
     }
 
-    private void configurarFiltros() {
-        if (comboFiltroEstado != null) {
-            comboFiltroEstado.setItems(FXCollections.observableArrayList("Todos", "pendiente", "requisitos", "en_examenes", "aprobado", "licencia_emitida"));
-            comboFiltroEstado.setValue("Todos");
-        }
-    }
-
     private void cargarDatosReales() {
         listaMaster.clear();
-        // Datos de ejemplo para que la tabla no esté vacía
+        // Datos de ejemplo (Sustituir por llamada a BD si es necesario)
         listaMaster.addAll(
                 new Tramite(15, "1104587234", "Juan Pérez", "B", "2025-01-10", "pendiente"),
-                new Tramite(11, "0923478902", "María López", "A", "2025-01-09", "aprobado")
+                new Tramite(11, "0923478902", "María López", "A", "2025-01-09", "aprobado"),
+                new Tramite(22, "1712345678", "Carlos Ruiz", "C", "2025-01-08", "en_examenes")
         );
         tablaTramites.setItems(listaMaster);
     }

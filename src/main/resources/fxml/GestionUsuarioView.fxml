@@ -1,24 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="ui.controllers.GestionUsuariosController" padding="10" stylesheets="@../styles/style.css">
-    <top><Label text="Gestión de Usuarios" styleClass="header-label"/></top>
-    <center>
-        <TableView fx:id="tableUsuarios" styleClass="table-view">
-            <columns>
-                <TableColumn text="ID" prefWidth="50"/>
-                <TableColumn text="Nombre" prefWidth="200"/>
-                <TableColumn text="Username" prefWidth="120"/>
-                <TableColumn text="Rol" prefWidth="100"/>
-                <TableColumn text="Activo" prefWidth="80"/>
-            </columns>
-        </TableView>
-    </center>
-    <bottom>
-        <HBox spacing="8" alignment="CENTER_RIGHT">
-            <Button text="Crear Usuario" onAction="#onCrearUsuario"/>
-            <Button text="Activar/Desactivar" onAction="#onToggleActivo"/>
-        </HBox>
-    </bottom>
-</BorderPane>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="15" style="-fx-padding: 20; -fx-background-color: white;"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ui.admin.GestionUsuarioController">
+
+    <Label text="REGISTRO DE USUARIOS DEL SISTEMA" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10" style="-fx-background-color: #f9f9f9; -fx-padding: 15; -fx-border-color: #ddd;">
+        <Label text="Nombre Completo:"/>
+        <TextField fx:id="txtNombre" GridPane.columnIndex="1"/>
+
+        <Label text="Cédula:" GridPane.rowIndex="1"/>
+        <TextField fx:id="txtCedula" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="Username:" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtUsername" GridPane.columnIndex="3"/>
+
+        <Label text="Contraseña:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+        <PasswordField fx:id="txtPassword" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+        <Label text="Rol:" GridPane.rowIndex="2"/>
+        <ComboBox fx:id="cbRol" prefWidth="150" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <Label text="Estado:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+        <ComboBox fx:id="cbEstado" prefWidth="150" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+    </GridPane>
+
+    <HBox spacing="10">
+        <Button text="Guardar" onAction="#handleGuardar" style="-fx-background-color: #27ae60; -fx-text-fill: white;"/>
+        <Button text="Limpiar" onAction="#handleLimpiar"/>
+    </HBox>
+
+    <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
+            <TableColumn fx:id="colCedula" text="Cédula" prefWidth="100"/>
+            <TableColumn fx:id="colUsername" text="Usuario" prefWidth="100"/>
+            <TableColumn fx:id="colRol" text="Rol" prefWidth="100"/>
+            <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
+        </columns>
+    </TableView>
+</VBox>
