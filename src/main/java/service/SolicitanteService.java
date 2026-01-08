@@ -8,21 +8,14 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.Period;
 
-/**
- * Servicio para crear solicitante y su trámite inicial.
- * Reglas simples en español: edad mínima 18 años.
- */
+
 public class SolicitanteService {
 
     private static final int EDAD_MINIMA = 18;
 
     public SolicitanteService() {}
 
-    /**
-     * Crea un solicitante y crea también su trámite con estado 'pendiente'.
-     * Operación en una transacción: si falla algo se revierte todo.
-     * Retorna el id del solicitante creado.
-     */
+
     public Integer crearSolicitanteConTramite(Solicitante solicitante) throws Exception {
         if (solicitante.getFechaNacimiento() == null) throw new Exception("Fecha de nacimiento es obligatoria.");
         if (!esMayorEdad(solicitante.getFechaNacimiento())) throw new Exception("El solicitante debe tener al menos 18 años.");

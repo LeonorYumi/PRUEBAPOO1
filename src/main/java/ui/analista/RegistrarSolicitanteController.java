@@ -2,6 +2,8 @@ package ui.analista;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import model.Solicitante;
+import service.SolicitanteService;
 import java.time.LocalDate;
 
 public class RegistrarSolicitanteController {
@@ -9,30 +11,36 @@ public class RegistrarSolicitanteController {
     @FXML private TextField txtCedula;
     @FXML private TextField txtNombre;
     @FXML private ComboBox<String> comboLicencia;
-    @FXML private DatePicker dateSolicitud;
+    @FXML private DatePicker dateNacimiento; // Necesario para el Service
+
+    private SolicitanteService solicitanteService = new SolicitanteService();
 
     @FXML
     public void initialize() {
-        // Llenamos los tipos de licencia
         comboLicencia.getItems().addAll("Tipo A", "Tipo B", "Tipo C", "Tipo D", "Tipo E");
-        // Seteamos la fecha automática a hoy
-        dateSolicitud.setValue(LocalDate.now());
     }
 
     @FXML
     private void handleGuardar() {
-        String cedula = txtCedula.getText();
-        String nombre = txtNombre.getText();
-        String tipo = comboLicencia.getValue();
+        try {
+            // 1. Empaquetamos los datos en el Modelo
+            Solicitante nuevoSolicitante = new Solicitante();
+            nuevoSolicitante.setCedula(txtCedula.getText());
+            nuevoSolicitante.setNombre(txtNombre.getText());
+            nuevoSolicitante.setTipoLicencia(comboLicencia.getValue());
+            nuevoSolicitante.setFechaNacimiento(dateNacimiento.getValue());
+            // nuevoSolicitante.setCreatedBy(idUsuarioLogueado); // Si lo tienes
 
-        if (cedula.isEmpty() || nombre.isEmpty() || tipo == null) {
-            System.out.println("Error: Todos los campos son obligatorios.");
-            return;
+            // 2. LLAMADA AL SERVICIO (Aquí ocurren todas las validaciones)
+            solicitanteService.crearSolicitanteConTramite(nuevoSolicitante);
+
+            // 3. Si llega aquí, es que no hubo excepciones
+            mostrarAlerta("Éxito", "Solicitante y Trámite creados correctamente.");
+            handleLimpiar();
+
+        } catch (Exception e) {
+            mostrarAlerta("Error de Validación", e.getMessage());
         }
-
-        System.out.println("Guardando Solicitante: " + nombre);
-        System.out.println("Creando Trámite: PENDIENTE");
-        // Aquí llamarás a SolicitanteDao más adelante
     }
 
     @FXML
@@ -40,6 +48,14 @@ public class RegistrarSolicitanteController {
         txtCedula.clear();
         txtNombre.clear();
         comboLicencia.setValue(null);
-        dateSolicitud.setValue(LocalDate.now());
+        if(dateNacimiento != null) dateNacimiento.setValue(null);
+    }
+
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 }

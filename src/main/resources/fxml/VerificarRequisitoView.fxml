@@ -8,6 +8,12 @@
 
     <Label text="VERIFICACIÓN DE REQUISITOS" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="ID Trámite:"/>
+        <TextField fx:id="txtBusquedaId" promptText="Ingrese ID..."/>
+        <Button text="Buscar" onAction="#handleBuscar" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+    </HBox>
+
     <VBox spacing="15" maxWidth="400" alignment="CENTER_LEFT" style="-fx-background-color: #f9f9f9; -fx-padding: 20; -fx-border-color: #dcdde1;">
         <CheckBox fx:id="chkCertificado" text="Certificado Médico" style="-fx-font-size: 14px;"/>
         <CheckBox fx:id="chkPago" text="Comprobante de Pago" style="-fx-font-size: 14px;"/>

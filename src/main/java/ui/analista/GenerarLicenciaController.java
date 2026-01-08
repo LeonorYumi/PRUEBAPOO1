@@ -2,12 +2,14 @@ package ui.analista;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane; // Importación necesaria para el método regresar
 import model.Tramite;
-import dao.TramiteDao;
+import model.Licencia;
+import service.LicenciaService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-// IMPORTACIONES PARA PDFBOX
+// PDFBOX
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -20,46 +22,46 @@ public class GenerarLicenciaController {
     @FXML private Button btnGenerar, btnExportar;
 
     private Tramite tramiteActivo;
-    private TramiteDao tramiteDao = new TramiteDao();
+    private Licencia licenciaGenerada;
+    private final LicenciaService licenciaService = new LicenciaService();
 
     public void initData(Tramite tramite) {
         this.tramiteActivo = tramite;
 
         lblNombreConductor.setText(tramite.getNombre());
-        lblNumeroLicencia.setText(tramite.getCedula());
+        lblNumeroLicencia.setText("PENDIENTE GENERAR");
         lblTipoLicencia.setText(tramite.getTipo());
 
-        LocalDate hoy = LocalDate.now();
-        LocalDate vencimiento = hoy.plusYears(5);
-
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        lblFechaEmision.setText(hoy.format(fmt));
-        lblFechaVencimiento.setText(vencimiento.format(fmt));
+        lblFechaEmision.setText(LocalDate.now().format(fmt));
+        lblFechaVencimiento.setText(LocalDate.now().plusYears(5).format(fmt));
 
-        // Habilitar botón generar solo si está aprobado
         btnGenerar.setDisable(!"aprobado".equalsIgnoreCase(tramite.getEstado()));
-        // El botón exportar se mantiene apagado hasta que se guarde en DB
         btnExportar.setDisable(true);
     }
 
     @FXML
     private void handleGenerar() {
         try {
-            // 1. Cambiar estado en la base de datos
-            tramiteDao.updateEstado(tramiteActivo.getId(), "licencia_emitida");
+            this.licenciaGenerada = licenciaService.generarLicencia(tramiteActivo.getId(), null);
 
-            mostrarAlerta("Éxito", "Licencia registrada en el sistema. Ahora puede exportar el PDF.");
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            lblNumeroLicencia.setText(licenciaGenerada.getNumeroLicencia());
+            lblFechaEmision.setText(licenciaGenerada.getFechaEmision().format(fmt));
+            lblFechaVencimiento.setText(licenciaGenerada.getFechaVencimiento().format(fmt));
+
+            mostrarAlerta("Éxito", "Licencia generada oficialmente con número: " + licenciaGenerada.getNumeroLicencia());
 
             btnGenerar.setDisable(true);
-            btnExportar.setDisable(false); // Activamos el botón de PDF
+            btnExportar.setDisable(false);
         } catch (Exception e) {
-            mostrarAlerta("Error", "Error al procesar: " + e.getMessage());
+            mostrarAlerta("Error de Emisión", e.getMessage());
         }
     }
 
     @FXML
     private void handleExportarPDF() {
-        if (tramiteActivo == null) return;
+        if (licenciaGenerada == null) return;
 
         String nombreArchivo = "Licencia_" + tramiteActivo.getCedula() + ".pdf";
 
@@ -68,58 +70,45 @@ public class GenerarLicenciaController {
             documento.addPage(pagina);
 
             try (PDPageContentStream contenido = new PDPageContentStream(documento, pagina)) {
-                // Título
-                contenido.beginText();
-                contenido.setFont(PDType1Font.HELVETICA_BOLD, 18);
-                contenido.newLineAtOffset(150, 750);
-                contenido.showText("REPÚBLICA DEL ECUADOR");
-                contenido.endText();
+                escribirTexto(contenido, "REPÚBLICA DEL ECUADOR", 150, 750, 18, true);
+                escribirTexto(contenido, "SISTEMA NACIONAL DE TRÁNSITO", 180, 730, 12, false);
 
-                contenido.beginText();
-                contenido.setFont(PDType1Font.HELVETICA_BOLD, 14);
-                contenido.newLineAtOffset(180, 730);
-                contenido.showText("LICENCIA DE CONDUCIR");
-                contenido.endText();
+                int startY = 650;
+                escribirTexto(contenido, "NÚMERO DE LICENCIA: " + licenciaGenerada.getNumeroLicencia(), 100, startY, 12, true);
+                escribirTexto(contenido, "CONDUCTOR: " + lblNombreConductor.getText(), 100, startY - 30, 12, false);
+                escribirTexto(contenido, "CÉDULA: " + tramiteActivo.getCedula(), 100, startY - 60, 12, false);
+                escribirTexto(contenido, "TIPO: " + tramiteActivo.getTipo(), 100, startY - 90, 12, false);
+                escribirTexto(contenido, "EMISIÓN: " + lblFechaEmision.getText(), 100, startY - 120, 12, false);
+                escribirTexto(contenido, "VENCIMIENTO: " + lblFechaVencimiento.getText(), 100, startY - 150, 12, true);
 
-                // Datos de la licencia
-                contenido.setFont(PDType1Font.HELVETICA, 12);
-
-                int startY = 680;
-                escribirLinea(contenido, "NÚMERO DE LICENCIA: " + lblNumeroLicencia.getText(), 100, startY);
-                escribirLinea(contenido, "CONDUCTOR: " + lblNombreConductor.getText(), 100, startY - 30);
-                escribirLinea(contenido, "TIPO DE LICENCIA: " + lblTipoLicencia.getText(), 100, startY - 60);
-                escribirLinea(contenido, "FECHA EMISIÓN: " + lblFechaEmision.getText(), 100, startY - 90);
-                escribirLinea(contenido, "FECHA VENCIMIENTO: " + lblFechaVencimiento.getText(), 100, startY - 120);
-
-                contenido.beginText();
-                contenido.setFont(PDType1Font.HELVETICA_OBLIQUE, 10);
-                contenido.newLineAtOffset(100, 500);
-                contenido.showText("Documento generado electrónicamente por el Sistema de Licencias.");
-                contenido.endText();
+                escribirTexto(contenido, "Documento válido como título habilitante para conducir.", 100, 450, 10, false);
             }
 
             documento.save(nombreArchivo);
-            mostrarAlerta("PDF Creado", "Se ha generado el archivo: " + nombreArchivo);
+            mostrarAlerta("PDF Generado", "El archivo PDF se ha guardado como: " + nombreArchivo);
 
         } catch (IOException e) {
-            mostrarAlerta("Error PDF", "No se pudo generar el archivo: " + e.getMessage());
-            e.printStackTrace();
+            mostrarAlerta("Error PDF", "Error al crear el archivo: " + e.getMessage());
         }
     }
 
-    // Método auxiliar para escribir texto más fácil en PDFBox
-    private void escribirLinea(PDPageContentStream cs, String texto, float x, float y) throws IOException {
-        cs.beginText();
-        cs.newLineAtOffset(x, y);
-        cs.showText(texto);
-        cs.endText();
-    }
 
     @FXML
     private void handleRegresar() {
-        // Aquí deberías llamar a la función de navegación de tu AnalistaController
-        // o simplemente limpiar el contentArea.
-        btnExportar.getScene().lookup("#contentArea"); // Esto es una referencia, depende de tu navegación
+        if (lblNombreConductor.getScene() != null) {
+            StackPane contentArea = (StackPane) lblNombreConductor.getScene().lookup("#contentArea");
+            if (contentArea != null) {
+                contentArea.getChildren().clear();
+            }
+        }
+    }
+
+    private void escribirTexto(PDPageContentStream cs, String texto, float x, float y, int size, boolean negrita) throws IOException {
+        cs.beginText();
+        cs.setFont(negrita ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, size);
+        cs.newLineAtOffset(x, y);
+        cs.showText(texto);
+        cs.endText();
     }
 
     private void mostrarAlerta(String titulo, String msg) {

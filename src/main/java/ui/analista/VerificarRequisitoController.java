@@ -1,50 +1,107 @@
 package ui.analista;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import service.RequisitoService;
+import service.TramiteService; // Necesitarás este servicio
+import model.Tramite;
 
 public class VerificarRequisitoController {
 
+    @FXML private TextField txtBusquedaId;
     @FXML private CheckBox chkCertificado;
     @FXML private CheckBox chkPago;
     @FXML private CheckBox chkSinMultas;
     @FXML private TextArea txtObservaciones;
 
+    // Labels opcionales si quieres mostrar el nombre del cliente al buscar
+    @FXML private Label lblNombreCliente;
+
+    private RequisitoService requisitoService = new RequisitoService();
+    private TramiteService tramiteService = new TramiteService(); // Para buscar datos
+
+    /**
+     * AÑADE ESTE MÉTODO: Es vital para cargar los datos antes de validar
+     */
+    @FXML
+    private void handleBuscar() {
+        try {
+            if (txtBusquedaId.getText().trim().isEmpty()) {
+                mostrarAlerta("Atención", "Ingrese un ID de trámite.");
+                return;
+            }
+            int id = Integer.parseInt(txtBusquedaId.getText().trim());
+            Tramite t = tramiteService.buscarTramitePorId(id);
+
+            if (t != null) {
+                // Aquí podrías marcar los checks si ya existen en la BD
+                // O mostrar el nombre del cliente para confirmar
+                System.out.println("Trámite encontrado: " + t.getNombre());
+            } else {
+                mostrarAlerta("Error", "No existe un trámite con ese ID.");
+            }
+        } catch (Exception e) {
+            mostrarAlerta("Error", "ID no válido.");
+        }
+    }
+
     @FXML
     private void handleAprobar() {
-        // Validación: Todos los checkboxes deben estar marcados
-        if (chkCertificado.isSelected() && chkPago.isSelected() && chkSinMultas.isSelected()) {
-            mostrarAlerta("Éxito", "Requisitos verificados. Estado: EN_EXÁMENES.");
-            // Aquí iría la lógica para actualizar en Base de Datos
-            limpiarCampos();
-        } else {
-            mostrarAlerta("Error", "Debe cumplir todos los requisitos para aprobar.");
-        }
+        procesarTramite();
     }
 
     @FXML
     private void handleRechazar() {
         if (txtObservaciones.getText().trim().isEmpty()) {
             mostrarAlerta("Atención", "Debe ingresar una observación para el rechazo.");
-        } else {
-            mostrarAlerta("Rechazado", "Trámite rechazado por falta de requisitos.");
-            limpiarCampos();
+            return;
         }
+        procesarTramite();
     }
 
     @FXML
     private void handleRegresar() {
-        // Esta lógica depende de si quieres limpiar el área central
-        StackPane contentArea = (StackPane) chkCertificado.getScene().lookup("#contentArea");
-        if (contentArea != null) {
-            contentArea.getChildren().clear();
+        if (txtBusquedaId.getScene() != null) {
+            StackPane contentArea = (StackPane) txtBusquedaId.getScene().lookup("#contentArea");
+            if (contentArea != null) {
+                contentArea.getChildren().clear();
+            }
+        }
+    }
+
+    private void procesarTramite() {
+        try {
+            if (txtBusquedaId.getText().trim().isEmpty()) {
+                mostrarAlerta("Error", "Debe ingresar o buscar un ID de trámite primero.");
+                return;
+            }
+
+            int idTramiteActual = Integer.parseInt(txtBusquedaId.getText().trim());
+
+            requisitoService.guardarRequisitos(
+                    idTramiteActual,
+                    chkCertificado.isSelected(),
+                    chkPago.isSelected(),
+                    chkSinMultas.isSelected(),
+                    txtObservaciones.getText(),
+                    null
+            );
+
+            mostrarAlerta("Éxito", "Requisitos procesados correctamente.");
+            limpiarCampos();
+
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Error", "El ID del trámite debe ser un número válido.");
+        } catch (Exception e) {
+            // Este catch capturará el error de "Unknown column 'tipo_licencia'"
+            // si aún no has corregido la base de datos.
+            mostrarAlerta("Error de Base de Datos", e.getMessage());
         }
     }
 
     private void limpiarCampos() {
+        if (txtBusquedaId != null) txtBusquedaId.clear();
         chkCertificado.setSelected(false);
         chkPago.setSelected(false);
         chkSinMultas.setSelected(false);

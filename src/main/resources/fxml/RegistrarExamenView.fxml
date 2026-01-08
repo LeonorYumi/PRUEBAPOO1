@@ -9,6 +9,11 @@
     <Label text="REGISTRO DE EXÁMENES" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
     <Label text="Ingrese los resultados de las evaluaciones (Mínimo 14 para aprobar)" style="-fx-text-fill: #7f8c8d;"/>
 
+    <HBox spacing="10" alignment="CENTER" style="-fx-background-color: #f4f7f6; -fx-padding: 15; -fx-background-radius: 5;">
+        <Label text="ID Trámite:" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtBusquedaId" promptText="Ej: 15" prefWidth="100"/>
+    </HBox>
+
     <GridPane hgap="15" vgap="20" alignment="CENTER">
         <Label text="Nota Examen Teórico:" style="-fx-font-weight: bold;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
         <TextField fx:id="txtNotaTeorica" promptText="0.00" prefWidth="100" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
