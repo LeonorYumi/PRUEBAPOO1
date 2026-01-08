@@ -4,12 +4,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import java.io.IOException;
+import model.Usuario;
+import service.UsuarioService;
 
 public class LoginController {
 
@@ -25,56 +27,91 @@ public class LoginController {
     @FXML
     private ComboBox<String> comboUsuario;
 
+    private final UsuarioService usuarioService = new UsuarioService();
+
+    // 🔒 Control de intentos (Regla de negocio 2)
+    private int intentos = 0;
+
     @FXML
     public void initialize() {
-        System.out.println("Controlador de Login inicializado correctamente.");
+        // Limpiamos y cargamos los roles exactos del script SQL
+        comboUsuario.getItems().clear();
+        comboUsuario.getItems().addAll("ADMIN", "ANALISTA");
     }
 
     @FXML
     private void handleLogin() {
-        String rol = (comboUsuario != null) ? comboUsuario.getValue() : null;
-        String usuario = txtUsuario.getText();
-        String pass = txtPassword.getText();
+        String usuarioStr = txtUsuario.getText().trim();
+        String passwordStr = txtPassword.getText().trim();
+        String rolSeleccionado = comboUsuario.getValue();
 
-        if (rol == null) {
-            System.out.println("Error: Debe seleccionar un rol");
+        // 1. Validación de campos vacíos
+        if (usuarioStr.isEmpty() || passwordStr.isEmpty() || rolSeleccionado == null) {
+            mostrarError("Por favor, complete todos los campos y seleccione su rol.");
             return;
         }
 
-        if (usuario.isEmpty() || pass.isEmpty()) {
-            System.out.println("Error: Campos vacíos");
-            return;
-        }
+        try {
+            // Llamada al servicio que usa SHA2 en el DAO
+            Usuario u = usuarioService.iniciarSesion(usuarioStr, passwordStr);
 
-        // --- LÓGICA DE NAVEGACIÓN ---
-        // Por ahora, como es un prototipo, entramos directo según el rol
-        if (rol.equals("Administrador")) {
-            cargarVentana("/fxml/MenuAdminView.fxml", "Panel de Administrador");
-        } else if (rol.equals("Analista")) {
-            cargarVentana("/fxml/MenuAnalistaView.fxml", "Panel de Analista");
+            // 2. Validación de credenciales y rol (Regla de negocio 2 y 6.5)
+            if (u == null || !u.getRol().equalsIgnoreCase(rolSeleccionado)) {
+                intentos++;
+                if (intentos >= 3) {
+                    mostrarError("Has superado el límite de 3 intentos. El sistema se cerrará.");
+                    System.exit(0);
+                }
+                mostrarError("Credenciales o rol incorrectos.\nIntento " + intentos + " de 3.");
+                return;
+            }
+
+            // 3. Login exitoso: Redirección según rol
+            intentos = 0;
+
+            // Comparamos con los valores que vienen del JOIN en la BD (ADMIN/ANALISTA)
+            if (u.getRol().equalsIgnoreCase("ADMIN")) {
+                cargarVentana("/fxml/MenuAdminView.fxml", "Sistema de Licencias - Administrador");
+            } else if (u.getRol().equalsIgnoreCase("ANALISTA")) {
+                cargarVentana("/fxml/MenuAnalistaView.fxml", "Sistema de Licencias - Analista");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error crítico al iniciar sesión: " + e.getMessage());
         }
     }
 
-    // Este es el método que usa getClass().getResource()
-    private void cargarVentana(String rutaFxml, String titulo) {
+    private void cargarVentana(String ruta, String titulo) {
         try {
-            // 1. Cargamos el archivo FXML desde la carpeta resources
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFxml));
+            // Cargamos el recurso usando la ruta absoluta dentro de resources
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Parent root = loader.load();
 
-            // 2. Creamos la nueva escena
+            // Configuramos la nueva escena
             Stage stage = new Stage();
             stage.setTitle(titulo);
             stage.setScene(new Scene(root));
+
+            // Centrar ventana (opcional)
             stage.show();
 
-            // 3. Cerramos la ventana de Login actual para que no queden dos abiertas
-            Stage loginStage = (Stage) btnLogin.getScene().getWindow();
-            loginStage.close();
+            // Cerramos la ventana de Login actual
+            Stage actual = (Stage) btnLogin.getScene().getWindow();
+            actual.close();
 
-        } catch (IOException e) {
-            System.err.println("Error al cargar la ventana: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error cargando FXML: " + ruta);
             e.printStackTrace();
+            mostrarError("No se pudo cargar la vista del menú. Verifique la consola.");
         }
+    }
+
+    private void mostrarError(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error de Acceso");
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 }
