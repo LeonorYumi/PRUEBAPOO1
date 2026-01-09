@@ -2,7 +2,7 @@ package ui.analista;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane; // Importación necesaria para el método regresar
+import javafx.scene.layout.StackPane;
 import model.Tramite;
 import model.Licencia;
 import service.LicenciaService;
@@ -30,7 +30,9 @@ public class GenerarLicenciaController {
 
         lblNombreConductor.setText(tramite.getNombre());
         lblNumeroLicencia.setText("PENDIENTE GENERAR");
-        lblTipoLicencia.setText(tramite.getTipo());
+
+        // CORRECCIÓN AQUÍ: de getTipo() a getTipoLicencia()
+        lblTipoLicencia.setText(tramite.getTipoLicencia());
 
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         lblFechaEmision.setText(LocalDate.now().format(fmt));
@@ -43,7 +45,8 @@ public class GenerarLicenciaController {
     @FXML
     private void handleGenerar() {
         try {
-            this.licenciaGenerada = licenciaService.generarLicencia(tramiteActivo.getId(), null);
+            // Pasamos el ID del trámite y un 1 como ID de usuario (puedes cambiarlo por el del login)
+            this.licenciaGenerada = licenciaService.generarLicencia(tramiteActivo.getId(), 1);
 
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             lblNumeroLicencia.setText(licenciaGenerada.getNumeroLicencia());
@@ -70,18 +73,21 @@ public class GenerarLicenciaController {
             documento.addPage(pagina);
 
             try (PDPageContentStream contenido = new PDPageContentStream(documento, pagina)) {
-                escribirTexto(contenido, "REPÚBLICA DEL ECUADOR", 150, 750, 18, true);
-                escribirTexto(contenido, "SISTEMA NACIONAL DE TRÁNSITO", 180, 730, 12, false);
+                escribirTexto(contenido, "REPUBLICA DEL ECUADOR", 150, 750, 18, true);
+                escribirTexto(contenido, "SISTEMA NACIONAL DE TRANSITO", 180, 730, 12, false);
 
                 int startY = 650;
-                escribirTexto(contenido, "NÚMERO DE LICENCIA: " + licenciaGenerada.getNumeroLicencia(), 100, startY, 12, true);
-                escribirTexto(contenido, "CONDUCTOR: " + lblNombreConductor.getText(), 100, startY - 30, 12, false);
-                escribirTexto(contenido, "CÉDULA: " + tramiteActivo.getCedula(), 100, startY - 60, 12, false);
-                escribirTexto(contenido, "TIPO: " + tramiteActivo.getTipo(), 100, startY - 90, 12, false);
-                escribirTexto(contenido, "EMISIÓN: " + lblFechaEmision.getText(), 100, startY - 120, 12, false);
+                escribirTexto(contenido, "NUMERO DE LICENCIA: " + licenciaGenerada.getNumeroLicencia(), 100, startY, 12, true);
+                escribirTexto(contenido, "CONDUCTOR: " + tramiteActivo.getNombre(), 100, startY - 30, 12, false);
+                escribirTexto(contenido, "CEDULA: " + tramiteActivo.getCedula(), 100, startY - 60, 12, false);
+
+                // CORRECCIÓN AQUÍ: de getTipo() a getTipoLicencia()
+                escribirTexto(contenido, "TIPO: " + tramiteActivo.getTipoLicencia(), 100, startY - 90, 12, false);
+
+                escribirTexto(contenido, "EMISION: " + lblFechaEmision.getText(), 100, startY - 120, 12, false);
                 escribirTexto(contenido, "VENCIMIENTO: " + lblFechaVencimiento.getText(), 100, startY - 150, 12, true);
 
-                escribirTexto(contenido, "Documento válido como título habilitante para conducir.", 100, 450, 10, false);
+                escribirTexto(contenido, "Documento valido como titulo habilitante para conducir.", 100, 450, 10, false);
             }
 
             documento.save(nombreArchivo);
@@ -91,7 +97,6 @@ public class GenerarLicenciaController {
             mostrarAlerta("Error PDF", "Error al crear el archivo: " + e.getMessage());
         }
     }
-
 
     @FXML
     private void handleRegresar() {
@@ -105,6 +110,7 @@ public class GenerarLicenciaController {
 
     private void escribirTexto(PDPageContentStream cs, String texto, float x, float y, int size, boolean negrita) throws IOException {
         cs.beginText();
+        // Usamos fuentes estándar de PDFBox
         cs.setFont(negrita ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, size);
         cs.newLineAtOffset(x, y);
         cs.showText(texto);

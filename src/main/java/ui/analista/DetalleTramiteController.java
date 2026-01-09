@@ -32,7 +32,10 @@ public class DetalleTramiteController {
             if (tramiteEncontrado != null) {
                 lblNombre.setText(tramiteEncontrado.getNombre());
                 lblCedula.setText(tramiteEncontrado.getCedula());
-                lblTipoLicencia.setText(tramiteEncontrado.getTipo());
+
+                // CORRECCIÓN: Se cambió getTipo() por el nombre real en el modelo
+                lblTipoLicencia.setText(tramiteEncontrado.getTipoLicencia());
+
                 lblEstadoActual.setText(tramiteEncontrado.getEstado().toUpperCase());
             } else {
                 mostrarAlerta("No encontrado", "No se encontró ningún trámite con el ID: " + id);
@@ -51,16 +54,18 @@ public class DetalleTramiteController {
             if (txtBusquedaId.getText().isEmpty()) throw new Exception("Busque un trámite primero.");
 
             int id = Integer.parseInt(txtBusquedaId.getText());
+
+            // Se envía '1' en lugar de null para evitar errores en campos NOT NULL de la BD
             requisitoService.guardarRequisitos(
                     id,
                     chkCertificadoSalud.isSelected(),
                     chkPagoBanco.isSelected(),
                     chkSinMultas.isSelected(),
                     "Actualización desde detalle",
-                    null
+                    1
             );
             mostrarAlerta("Éxito", "Requisitos actualizados.");
-            handleBuscar();
+            handleBuscar(); // Refresca los datos en pantalla
         } catch (Exception e) {
             mostrarAlerta("Error", e.getMessage());
         }
@@ -72,40 +77,44 @@ public class DetalleTramiteController {
             if (txtBusquedaId.getText().isEmpty()) throw new Exception("Busque un trámite primero.");
 
             int id = Integer.parseInt(txtBusquedaId.getText());
+
+            if(txtNotaTeorica.getText().isEmpty() || txtNotaPractica.getText().isEmpty()) {
+                throw new Exception("Debe ingresar ambas notas.");
+            }
+
             double nt = Double.parseDouble(txtNotaTeorica.getText());
             double np = Double.parseDouble(txtNotaPractica.getText());
 
-            tramiteService.registrarExamen(id, nt, np, null);
+            // Se envía '1' como ID de usuario creador
+            tramiteService.registrarExamen(id, nt, np, 1);
+
             mostrarAlerta("Éxito", "Notas registradas correctamente.");
-            handleBuscar();
+            handleBuscar(); // Refresca para ver si el estado cambió a Aprobado/Reprobado
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "Ingrese notas válidas (números).");
+            mostrarAlerta("Error", "Ingrese notas válidas (números entre 0 y 20).");
         } catch (Exception e) {
             mostrarAlerta("Error", e.getMessage());
         }
     }
 
-
     @FXML
     private void handleGenerarLicencia() {
-        if (lblEstadoActual.getText().equalsIgnoreCase("APROBADO")) {
-            // Lógica para navegar a la pantalla de generación
-            AnalistaController main = (AnalistaController) txtBusquedaId.getScene().getRoot().getUserData();
-            if (main != null) {
-                // Aquí podrías buscar el trámite actual y pasarlo
-                mostrarAlerta("Navegación", "Cambiando a pantalla de Generar Licencia...");
-            }
+        String estado = lblEstadoActual.getText();
+        if (estado != null && estado.equalsIgnoreCase("APROBADO")) {
+            mostrarAlerta("Navegación", "Cambiando a pantalla de Generar Licencia...");
+            // Aquí iría el código para cargar el FXML de GenerarLicencia
         } else {
             mostrarAlerta("Atención", "El trámite debe estar en estado APROBADO para generar la licencia.");
         }
     }
 
-
     @FXML
     private void handleRegresar() {
         if (txtBusquedaId.getScene() != null) {
             StackPane contentArea = (StackPane) txtBusquedaId.getScene().lookup("#contentArea");
-            if (contentArea != null) contentArea.getChildren().clear();
+            if (contentArea != null) {
+                contentArea.getChildren().clear();
+            }
         }
     }
 
@@ -114,6 +123,8 @@ public class DetalleTramiteController {
         lblCedula.setText("---");
         lblTipoLicencia.setText("---");
         lblEstadoActual.setText("---");
+        txtNotaTeorica.clear();
+        txtNotaPractica.clear();
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

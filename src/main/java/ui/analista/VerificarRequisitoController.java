@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import service.RequisitoService;
-import service.TramiteService; // Necesitarás este servicio
+import service.TramiteService;
 import model.Tramite;
 
 public class VerificarRequisitoController {
@@ -15,34 +15,62 @@ public class VerificarRequisitoController {
     @FXML private CheckBox chkSinMultas;
     @FXML private TextArea txtObservaciones;
 
-    // Labels opcionales si quieres mostrar el nombre del cliente al buscar
+    // Label para mostrar el nombre del cliente al buscar
     @FXML private Label lblNombreCliente;
 
     private RequisitoService requisitoService = new RequisitoService();
-    private TramiteService tramiteService = new TramiteService(); // Para buscar datos
+    private TramiteService tramiteService = new TramiteService();
 
     /**
-     * AÑADE ESTE MÉTODO: Es vital para cargar los datos antes de validar
+     * Busca el trámite por ID y muestra el nombre del solicitante en pantalla.
+     * Si el ID no existe, muestra un error de "No encontrado".
      */
     @FXML
     private void handleBuscar() {
         try {
-            if (txtBusquedaId.getText().trim().isEmpty()) {
+            // 1. Limpiar el nombre anterior antes de iniciar una nueva búsqueda
+            if (lblNombreCliente != null) {
+                lblNombreCliente.setText("");
+            }
+
+            String textoId = txtBusquedaId.getText().trim();
+            if (textoId.isEmpty()) {
                 mostrarAlerta("Atención", "Ingrese un ID de trámite.");
                 return;
             }
-            int id = Integer.parseInt(txtBusquedaId.getText().trim());
+
+            int id = Integer.parseInt(textoId);
             Tramite t = tramiteService.buscarTramitePorId(id);
 
-            if (t != null) {
-                // Aquí podrías marcar los checks si ya existen en la BD
-                // O mostrar el nombre del cliente para confirmar
+            // 2. VALIDACIÓN: ¿El trámite existe en la base de datos?
+            if (t == null) {
+                if (lblNombreCliente != null) {
+                    lblNombreCliente.setText("ID NO ENCONTRADO");
+                    lblNombreCliente.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                }
+                mostrarAlerta("Error", "El trámite #" + id + " no existe en la base de datos.");
+                return;
+            }
+
+            // 3. VALIDACIÓN: El trámite existe, verificar si tiene nombre vinculado
+            if (t.getNombre() != null && !t.getNombre().isEmpty()) {
+                if (lblNombreCliente != null) {
+                    lblNombreCliente.setText("Solicitante: " + t.getNombre());
+                    lblNombreCliente.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold; -fx-font-size: 14px;");
+                }
                 System.out.println("Trámite encontrado: " + t.getNombre());
             } else {
-                mostrarAlerta("Error", "No existe un trámite con ese ID.");
+                if (lblNombreCliente != null) {
+                    lblNombreCliente.setText("Trámite #" + id + " sin nombre vinculado.");
+                    lblNombreCliente.setStyle("-fx-text-fill: #f39c12;");
+                }
+                mostrarAlerta("Aviso", "El trámite existe pero no tiene un solicitante válido asignado.");
             }
+
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Error", "El ID debe ser un número válido.");
         } catch (Exception e) {
-            mostrarAlerta("Error", "ID no válido.");
+            mostrarAlerta("Error", "Error al buscar: " + e.getMessage());
         }
     }
 
@@ -94,14 +122,13 @@ public class VerificarRequisitoController {
         } catch (NumberFormatException e) {
             mostrarAlerta("Error", "El ID del trámite debe ser un número válido.");
         } catch (Exception e) {
-            // Este catch capturará el error de "Unknown column 'tipo_licencia'"
-            // si aún no has corregido la base de datos.
             mostrarAlerta("Error de Base de Datos", e.getMessage());
         }
     }
 
     private void limpiarCampos() {
         if (txtBusquedaId != null) txtBusquedaId.clear();
+        if (lblNombreCliente != null) lblNombreCliente.setText("");
         chkCertificado.setSelected(false);
         chkPago.setSelected(false);
         chkSinMultas.setSelected(false);

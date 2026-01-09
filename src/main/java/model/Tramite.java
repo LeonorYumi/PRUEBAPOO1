@@ -1,59 +1,44 @@
 package model;
 
-import javafx.beans.property.*;
-
 public class Tramite {
-    private final IntegerProperty id = new SimpleIntegerProperty();
-    private final StringProperty cedula = new SimpleStringProperty();
-    private final StringProperty nombre = new SimpleStringProperty();
-    private final StringProperty tipo = new SimpleStringProperty();
-    private final StringProperty fecha = new SimpleStringProperty();
-    private final StringProperty estado = new SimpleStringProperty();
-    private final IntegerProperty solicitanteId = new SimpleIntegerProperty();
-    private final IntegerProperty createdBy = new SimpleIntegerProperty();
+    private int id;
+    private int solicitanteId;
+    private String nombre;
+    private String cedula;
+    private String tipoLicencia; // 👈 Antes quizás se llamaba solo 'tipo'
+    private String fecha;
+    private String estado;
+    private int createdBy;
 
     public Tramite() {}
 
-    // Constructor que pide el GestionTramiteController
-    public Tramite(int id, String cedula, String nombre, String tipo, String fecha, String estado) {
-        setId(id);
-        setCedula(cedula);
-        setNombre(nombre);
-        setTipo(tipo);
-        setFecha(fecha);
-        setEstado(estado);
+    // Constructor para pruebas y reportes
+    public Tramite(int id, String cedula, String nombre, String tipoLicencia, String fecha, String estado) {
+        this.id = id;
+        this.cedula = cedula;
+        this.nombre = nombre;
+        this.tipoLicencia = tipoLicencia;
+        this.fecha = fecha;
+        this.estado = estado;
     }
 
-    // Métodos Property para las Tablas (Elimina errores en GestionTramiteController)
-    public IntegerProperty idProperty() { return id; }
-    public StringProperty cedulaProperty() { return cedula; }
-    public StringProperty nombreProperty() { return nombre; }
-    public StringProperty tipoProperty() { return tipo; }
-    public StringProperty fechaProperty() { return fecha; }
-    public StringProperty estadoProperty() { return estado; }
+    // --- GETTERS ---
+    public int getId() { return id; }
+    public int getSolicitanteId() { return solicitanteId; }
+    public String getNombre() { return nombre; }
+    public String getCedula() { return cedula; }
+    public String getTipoLicencia() { return tipoLicencia; } // 👈 Este es el que faltaba
+    public String getFecha() { return fecha; }
+    public String getEstado() { return estado; }
+    public int getCreatedBy() { return createdBy; }
 
-    // Getters y Setters Estándar (Elimina errores en TramiteDao)
-    public int getId() { return id.get(); }
-    public void setId(int v) { id.set(v); }
-
-    public String getCedula() { return cedula.get(); }
-    public void setCedula(String v) { cedula.set(v); }
-
-    public String getNombre() { return nombre.get(); }
-    public void setNombre(String v) { nombre.set(v); }
-
-    public String getTipo() { return tipo.get(); }
-    public void setTipo(String v) { tipo.set(v); }
-
-    public String getFecha() { return fecha.get(); }
-    public void setFecha(String v) { fecha.set(v); }
-
-    public String getEstado() { return estado.get(); }
-    public void setEstado(String v) { estado.set(v); }
-
-    public int getSolicitanteId() { return solicitanteId.get(); }
-    public void setSolicitanteId(int v) { solicitanteId.set(v); }
-
-    public int getCreatedBy() { return createdBy.get(); }
-    public void setCreatedBy(int v) { createdBy.set(v); }
+    // --- SETTERS ---
+    public void setId(int id) { this.id = id; }
+    public void setSolicitanteId(int solicitanteId) { this.solicitanteId = solicitanteId; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public void setCedula(String cedula) { this.cedula = cedula; }
+    public void setTipoLicencia(String tipoLicencia) { this.tipoLicencia = tipoLicencia; } // 👈 ESTO SOLUCIONA EL ERROR
+    public void setFecha(String fecha) { this.fecha = fecha; }
+    public void setEstado(String estado) { this.estado = estado; }
+    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
 }

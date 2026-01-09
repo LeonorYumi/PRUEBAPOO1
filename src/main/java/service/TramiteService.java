@@ -12,7 +12,40 @@ public class TramiteService {
     private static final double NOTA_APROBATORIA = 14.0;
 
     /**
-     * Registra las notas de los exámenes y actualiza el estado del trámite
+     * NUEVO MÉTODO: Recupera todos los trámites para la tabla de Gestión.
+     * Usa LEFT JOIN para asegurar que los nuevos usuarios aparezcan aunque tengan datos incompletos.
+     */
+    public List<Tramite> listarTodosLosTramites() throws Exception {
+        List<Tramite> lista = new ArrayList<>();
+        String sql = "SELECT t.id, s.cedula, s.nombre, t.tipo_licencia, t.fecha_creacion, t.estado " +
+                "FROM tramites t " +
+                "LEFT JOIN solicitantes s ON t.solicitante_id = s.id " +
+                "ORDER BY t.id DESC";
+
+        try (Connection con = Conexion.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Tramite t = new Tramite();
+                t.setId(rs.getInt("id"));
+                t.setCedula(rs.getString("cedula") != null ? rs.getString("cedula") : "N/A");
+                t.setNombre(rs.getString("nombre") != null ? rs.getString("nombre") : "Sin Nombre");
+                t.setTipoLicencia(rs.getString("tipo_licencia") != null ? rs.getString("tipo_licencia") : "-");
+
+                // Manejo de fecha para evitar errores si la columna es nueva
+                Timestamp ts = rs.getTimestamp("fecha_creacion");
+                t.setFecha(ts != null ? ts.toString().substring(0, 10) : "S/F");
+
+                t.setEstado(rs.getString("estado"));
+                lista.add(t);
+            }
+        }
+        return lista;
+    }
+
+    /**
+     * Registra las notas en la tabla 'examenes' y actualiza el estado en 'tramites'.
      */
     public void registrarExamen(int idTramite, Double notaTeorica, Double notaPractica, Integer creadoPor) throws Exception {
 
@@ -21,26 +54,31 @@ public class TramiteService {
         if (notaPractica != null && (notaPractica < 0 || notaPractica > 20))
             throw new Exception("Nota Práctica fuera de rango (0-20).");
 
-        String sqlInsertExamen = "INSERT INTO examenes (tramite_id, nota_teorica, nota_practica, fecha, created_by) VALUES (?, ?, ?, NOW(), ?)";
-        String sqlUpdateTramite = "UPDATE tramites SET estado = ?, updated_at = NOW() WHERE id = ?";
+        String sqlInsertExamen = "INSERT INTO examenes (tramite_id, nota_teorica, nota_practica, aprobado) VALUES (?, ?, ?, ?)";
+        String sqlUpdateTramite = "UPDATE tramites SET estado = ? WHERE id = ?";
 
-        try (Connection conexion = new Conexion().getConexion()) {
+        try (Connection conexion = Conexion.getConexion()) {
             conexion.setAutoCommit(false);
-            try (PreparedStatement psEx = conexion.prepareStatement(sqlInsertExamen)) {
-                psEx.setInt(1, idTramite);
-                if (notaTeorica != null) psEx.setDouble(2, notaTeorica); else psEx.setNull(2, Types.DOUBLE);
-                if (notaPractica != null) psEx.setDouble(3, notaPractica); else psEx.setNull(3, Types.DOUBLE);
-                if (creadoPor != null) psEx.setInt(4, creadoPor); else psEx.setNull(4, Types.INTEGER);
-                psEx.executeUpdate();
+            try {
+                boolean aprobado = (notaTeorica != null && notaPractica != null &&
+                        notaTeorica >= NOTA_APROBATORIA && notaPractica >= NOTA_APROBATORIA);
 
-                // Lógica de aprobación: Ambos deben ser >= 14
-                String estado = (notaTeorica >= NOTA_APROBATORIA && notaPractica >= NOTA_APROBATORIA) ? "aprobado" : "reprobado";
+                try (PreparedStatement psEx = conexion.prepareStatement(sqlInsertExamen)) {
+                    psEx.setInt(1, idTramite);
+                    psEx.setDouble(2, (notaTeorica != null) ? notaTeorica : 0.0);
+                    psEx.setDouble(3, (notaPractica != null) ? notaPractica : 0.0);
+                    psEx.setBoolean(4, aprobado);
+                    psEx.executeUpdate();
+                }
+
+                String nuevoEstado = aprobado ? "aprobado" : "reprobado";
 
                 try (PreparedStatement psTra = conexion.prepareStatement(sqlUpdateTramite)) {
-                    psTra.setString(1, estado);
+                    psTra.setString(1, nuevoEstado);
                     psTra.setInt(2, idTramite);
                     psTra.executeUpdate();
                 }
+
                 conexion.commit();
             } catch (Exception ex) {
                 conexion.rollback();
@@ -50,75 +88,71 @@ public class TramiteService {
     }
 
     /**
-     * Busca un trámite específico por su ID para mostrar detalles o generar licencia
+     * Busca el trámite por ID (Usado en Verificación de Requisitos).
      */
     public Tramite buscarTramitePorId(int idTramite) throws Exception {
-        String sql = "SELECT t.id, s.cedula, s.nombre, s.tipo_licencia, t.fecha_creacion, t.estado " +
-                "FROM tramites t JOIN solicitantes s ON t.solicitante_id = s.id WHERE t.id = ?";
+        String sql = "SELECT t.id, s.cedula, s.nombre, t.tipo_licencia, t.estado " +
+                "FROM tramites t " +
+                "JOIN solicitantes s ON t.solicitante_id = s.id " +
+                "WHERE t.id = ?";
 
-        try (Connection con = new Conexion().getConexion();
+        try (Connection con = Conexion.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idTramite);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return new Tramite(
-                        rs.getInt("id"),
-                        rs.getString("cedula"),
-                        rs.getString("nombre"),
-                        rs.getString("tipo_licencia"),
-                        rs.getString("fecha_creacion"),
-                        rs.getString("estado")
-                );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Tramite t = new Tramite();
+                    t.setId(rs.getInt("id"));
+                    t.setCedula(rs.getString("cedula"));
+                    t.setNombre(rs.getString("nombre"));
+                    t.setTipoLicencia(rs.getString("tipo_licencia"));
+                    t.setEstado(rs.getString("estado"));
+                    return t;
+                }
             }
         }
         return null;
     }
 
     /**
-     * Consulta trámites aplicando filtros dinámicos para el reporte del Administrador
-     * Requerimiento 4.8
+     * Consulta para reportes con filtros dinámicos.
      */
     public List<Tramite> consultarTramitesReporte(LocalDate inicio, LocalDate fin, String estado, String tipo, String cedula) throws Exception {
         List<Tramite> lista = new ArrayList<>();
-
-        // Construcción dinámica de la consulta SQL
         StringBuilder sql = new StringBuilder(
-                "SELECT t.id, s.cedula, s.nombre, s.tipo_licencia, t.fecha_creacion, t.estado " +
+                "SELECT t.id, s.cedula, s.nombre, t.tipo_licencia, t.estado " +
                         "FROM tramites t JOIN solicitantes s ON t.solicitante_id = s.id WHERE 1=1 "
         );
 
-        // Aplicación de filtros según lo recibido desde la UI
-        if (inicio != null) {
-            sql.append(" AND t.fecha_creacion >= '").append(Date.valueOf(inicio)).append("'");
-        }
-        if (fin != null) {
-            sql.append(" AND t.fecha_creacion <= '").append(Date.valueOf(fin)).append("'");
-        }
         if (estado != null && !estado.equalsIgnoreCase("Todos")) {
-            sql.append(" AND t.estado = '").append(estado).append("'");
-        }
-        if (tipo != null && !tipo.equalsIgnoreCase("Todos")) {
-            sql.append(" AND s.tipo_licencia = '").append(tipo).append("'");
+            sql.append(" AND t.estado = ?");
         }
         if (cedula != null && !cedula.trim().isEmpty()) {
-            sql.append(" AND s.cedula LIKE '%").append(cedula.trim()).append("%'");
+            sql.append(" AND s.cedula LIKE ?");
         }
 
-        try (Connection con = new Conexion().getConexion();
-             PreparedStatement ps = con.prepareStatement(sql.toString());
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection con = Conexion.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
-            while (rs.next()) {
-                lista.add(new Tramite(
-                        rs.getInt("id"),
-                        rs.getString("cedula"),
-                        rs.getString("nombre"),
-                        rs.getString("tipo_licencia"),
-                        rs.getString("fecha_creacion"),
-                        rs.getString("estado")
-                ));
+            int paramIndex = 1;
+            if (estado != null && !estado.equalsIgnoreCase("Todos")) {
+                ps.setString(paramIndex++, estado);
+            }
+            if (cedula != null && !cedula.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + cedula.trim() + "%");
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Tramite t = new Tramite();
+                    t.setId(rs.getInt("id"));
+                    t.setCedula(rs.getString("cedula"));
+                    t.setNombre(rs.getString("nombre"));
+                    t.setTipoLicencia(rs.getString("tipo_licencia"));
+                    t.setEstado(rs.getString("estado"));
+                    lista.add(t);
+                }
             }
         }
         return lista;
