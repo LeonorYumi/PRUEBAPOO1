@@ -4,24 +4,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert; // Necesario para el tipo de alerta
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import ui.base.BaseController;
 import java.io.IOException;
 
-// AHORA TU CLASE HEREDA DE BASECONTROLLER
 public class AdminController extends BaseController {
 
     @FXML private Button btnCerrarSesion;
     @FXML private StackPane contentArea;
 
-    // Implementamos el método abstracto que definimos en la base
     @Override
     public void limpiarCampos() {
-        // En este controlador no hay campos de texto que limpiar,
-        // pero el requisito de POO nos obliga a tener el método.
+        // Método requerido por la herencia de BaseController
     }
 
     private void cargarVista(String fxmlPath) {
@@ -38,20 +35,22 @@ public class AdminController extends BaseController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            // USAMOS EL MÉTODO HEREDADO DEL PADRE
             mostrarAlerta("Error", "No se pudo cargar la vista: " + fxmlPath, Alert.AlertType.ERROR);
         }
     }
 
-    // --- MÉTODOS DE NAVEGACIÓN (Se quedan igual) ---
+    // --- OPERACIONES DE TRÁMITE ---
     @FXML private void handleRegistrarSolicitante() { cargarVista("/fxml/RegistrarSolicitanteView.fxml"); }
     @FXML private void handleVerificarRequisitos() { cargarVista("/fxml/VerificarRequisitoView.fxml"); }
     @FXML private void handleRegistrarExamenes() { cargarVista("/fxml/RegistrarExamenView.fxml"); }
     @FXML private void handleGestionTramites() { cargarVista("/fxml/GestionTramiteView.fxml"); }
     @FXML private void handleGenerarLicencia() { cargarVista("/fxml/GenerarLicenciaView.fxml"); }
+
+    // --- CONTROL ADMINISTRATIVO ---
     @FXML private void handleGestionUsuarios() { cargarVista("/fxml/GestionUsuarioView.fxml"); }
     @FXML private void handleReportes() { cargarVista("/fxml/ReporteAdminView.fxml"); }
-    @FXML private void handleDashboard() { cargarVista("/fxml/DashboardTotalesView.fxml"); }
+
+    // El método handleDashboard ha sido eliminado correctamente.
 
     @FXML
     private void handleCerrarSesion() {

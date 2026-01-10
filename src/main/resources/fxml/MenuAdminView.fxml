@@ -46,8 +46,6 @@
                 <Button text="Reportes y Estadísticas" onAction="#handleReportes" focusTraversable="false"
                         maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="menu-item-button" style="-fx-cursor: hand;" />
 
-                <Button text="Dashboard de Totales" onAction="#handleDashboard" focusTraversable="false"
-                        maxWidth="Infinity" alignment="BASELINE_LEFT" styleClass="menu-item-button" style="-fx-cursor: hand;" />
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />
