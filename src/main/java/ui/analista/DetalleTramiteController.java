@@ -28,8 +28,7 @@ public class DetalleTramiteController extends BaseController {
     private Tramite tramiteEncontrado;
 
     /**
-     * Implementación obligatoria del método abstracto (Polimorfismo).
-     * Limpia los labels y el campo de búsqueda.
+     * Implementación obligatoria del método abstracto.
      */
     @Override
     public void limpiarCampos() {
@@ -49,7 +48,6 @@ public class DetalleTramiteController extends BaseController {
                 return;
             }
 
-            // Consultamos al Service (Abstracción: la UI no sabe de SQL)
             List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
 
             if (resultados != null && !resultados.isEmpty()) {
@@ -58,7 +56,6 @@ public class DetalleTramiteController extends BaseController {
                 lblCedula.setText("Cédula: " + tramiteEncontrado.getCedula());
                 lblEstadoActual.setText("Estado: " + tramiteEncontrado.getEstado());
 
-                // Lógica de validación de estado
                 String estado = tramiteEncontrado.getEstado().toLowerCase();
                 boolean puedePasar = estado.equals("aprobado") || estado.equals("licencia_emitida");
 
@@ -67,7 +64,6 @@ public class DetalleTramiteController extends BaseController {
             } else {
                 tramiteEncontrado = null;
                 btnGenerarLicencia.setDisable(true);
-                // USAMOS EL MÉTODO HEREDADO DEL PADRE
                 mostrarAlerta("No encontrado", "No existen trámites para la cédula: " + cedula, Alert.AlertType.INFORMATION);
             }
         } catch (Exception e) {
@@ -80,23 +76,33 @@ public class DetalleTramiteController extends BaseController {
         if (tramiteEncontrado == null) return;
 
         try {
+            // 1. Cargar el FXML de la vista Generar Licencia
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
             Parent root = loader.load();
 
-            // Pasamos los datos al controlador de la siguiente vista
-            // Nota: Aquí se usa el controlador que corresponda a tu paquete
-            ui.admin.GenerarLicenciaController controller = loader.getController();
-            controller.initData(tramiteEncontrado);
+            // 2. OBTENER EL CONTROLADOR (Corregido a ui.analista para evitar ClassCastException)
+            ui.analista.GenerarLicenciaController controller = loader.getController();
 
-            // Cambiamos el contenido del área central (Navegación dinámica)
+            // 3. Pasar los datos al nuevo controlador
+            if (controller != null) {
+                controller.initData(tramiteEncontrado);
+            }
+
+            // 4. Cambiamos el contenido del área central
             StackPane contentArea = (StackPane) btnGenerarLicencia.getScene().lookup("#contentArea");
             if (contentArea != null) {
                 contentArea.getChildren().setAll(root);
             }
+
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error de Tipo", "El controlador del FXML no coincide con la clase esperada.", Alert.AlertType.ERROR);
         } catch (IOException e) {
-            mostrarAlerta("Error", "No se pudo cargar la vista de la licencia.", Alert.AlertType.ERROR);
+            e.printStackTrace();
+            mostrarAlerta("Error de Carga", "No se pudo cargar la vista de la licencia.", Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error Crítico", "Ocurrió un error inesperado: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-
-    // El método mostrarAlerta() fue ELIMINADO de aquí porque ya lo tenemos en BaseController.
 }
