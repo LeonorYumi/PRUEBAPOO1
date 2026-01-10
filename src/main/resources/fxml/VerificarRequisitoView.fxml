@@ -9,7 +9,7 @@
     <Label text="VERIFICACIÓN DE REQUISITOS" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
 
     <HBox spacing="10" alignment="CENTER">
-        <Label text="ID Trámite:"/>
+        <Label text="Cédula del usuario:"/>
         <TextField fx:id="txtBusquedaId" promptText="Ingrese ID..."/>
         <Button text="Buscar" onAction="#handleBuscar" style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
     </HBox>

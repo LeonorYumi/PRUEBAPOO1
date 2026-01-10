@@ -6,69 +6,55 @@ import javafx.scene.layout.StackPane;
 import service.RequisitoService;
 import service.TramiteService;
 import model.Tramite;
+import java.util.List;
 
 public class VerificarRequisitoController {
 
-    @FXML private TextField txtBusquedaId;
+    @FXML private TextField txtBusquedaId; // Ahora lo usaremos para la Cédula
     @FXML private CheckBox chkCertificado;
     @FXML private CheckBox chkPago;
     @FXML private CheckBox chkSinMultas;
     @FXML private TextArea txtObservaciones;
-
-    // Label para mostrar el nombre del cliente al buscar
     @FXML private Label lblNombreCliente;
 
     private RequisitoService requisitoService = new RequisitoService();
     private TramiteService tramiteService = new TramiteService();
 
-    /**
-     * Busca el trámite por ID y muestra el nombre del solicitante en pantalla.
-     * Si el ID no existe, muestra un error de "No encontrado".
-     */
+    // Variable para guardar el trámite encontrado y usarlo al aprobar/rechazar
+    private Tramite tramiteEncontrado;
+
     @FXML
     private void handleBuscar() {
         try {
-            // 1. Limpiar el nombre anterior antes de iniciar una nueva búsqueda
-            if (lblNombreCliente != null) {
-                lblNombreCliente.setText("");
-            }
+            // 1. Limpiar datos previos
+            tramiteEncontrado = null;
+            lblNombreCliente.setText("");
 
-            String textoId = txtBusquedaId.getText().trim();
-            if (textoId.isEmpty()) {
-                mostrarAlerta("Atención", "Ingrese un ID de trámite.");
+            String cedula = txtBusquedaId.getText().trim();
+
+            // 2. VALIDACIÓN BÁSICA (Igual que en el Service)
+            if (cedula.length() != 10 || !cedula.matches("[0-9]+")) {
+                mostrarAlerta("Error de Cédula", "Ingrese una cédula válida de 10 dígitos numéricos.");
                 return;
             }
 
-            int id = Integer.parseInt(textoId);
-            Tramite t = tramiteService.buscarTramitePorId(id);
+            // 3. BUSCAR POR CÉDULA
+            // Usamos el método que ya tienes en el service para reportes que filtra por cédula
+            List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
 
-            // 2. VALIDACIÓN: ¿El trámite existe en la base de datos?
-            if (t == null) {
-                if (lblNombreCliente != null) {
-                    lblNombreCliente.setText("ID NO ENCONTRADO");
-                    lblNombreCliente.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-                }
-                mostrarAlerta("Error", "El trámite #" + id + " no existe en la base de datos.");
-                return;
-            }
+            if (resultados != null && !resultados.isEmpty()) {
+                tramiteEncontrado = resultados.get(0);
 
-            // 3. VALIDACIÓN: El trámite existe, verificar si tiene nombre vinculado
-            if (t.getNombre() != null && !t.getNombre().isEmpty()) {
-                if (lblNombreCliente != null) {
-                    lblNombreCliente.setText("Solicitante: " + t.getNombre());
-                    lblNombreCliente.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold; -fx-font-size: 14px;");
-                }
-                System.out.println("Trámite encontrado: " + t.getNombre());
+                // Mostrar el nombre del solicitante en el Label
+                lblNombreCliente.setText("Solicitante: " + tramiteEncontrado.getNombre());
+                lblNombreCliente.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold;");
+
             } else {
-                if (lblNombreCliente != null) {
-                    lblNombreCliente.setText("Trámite #" + id + " sin nombre vinculado.");
-                    lblNombreCliente.setStyle("-fx-text-fill: #f39c12;");
-                }
-                mostrarAlerta("Aviso", "El trámite existe pero no tiene un solicitante válido asignado.");
+                lblNombreCliente.setText("CÉDULA NO ENCONTRADA");
+                lblNombreCliente.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                mostrarAlerta("No encontrado", "No existe un trámite activo para la cédula: " + cedula);
             }
 
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "El ID debe ser un número válido.");
         } catch (Exception e) {
             mostrarAlerta("Error", "Error al buscar: " + e.getMessage());
         }
@@ -88,6 +74,32 @@ public class VerificarRequisitoController {
         procesarTramite();
     }
 
+    private void procesarTramite() {
+        try {
+            // Validar que primero se haya buscado a alguien
+            if (tramiteEncontrado == null) {
+                mostrarAlerta("Error", "Primero debe buscar y encontrar un solicitante por cédula.");
+                return;
+            }
+
+            // Usamos el ID del trámite que encontramos en la búsqueda por cédula
+            requisitoService.guardarRequisitos(
+                    tramiteEncontrado.getId(),
+                    chkCertificado.isSelected(),
+                    chkPago.isSelected(),
+                    chkSinMultas.isSelected(),
+                    txtObservaciones.getText(),
+                    null
+            );
+
+            mostrarAlerta("Éxito", "Requisitos de " + tramiteEncontrado.getNombre() + " procesados.");
+            limpiarCampos();
+
+        } catch (Exception e) {
+            mostrarAlerta("Error", e.getMessage());
+        }
+    }
+
     @FXML
     private void handleRegresar() {
         if (txtBusquedaId.getScene() != null) {
@@ -98,41 +110,14 @@ public class VerificarRequisitoController {
         }
     }
 
-    private void procesarTramite() {
-        try {
-            if (txtBusquedaId.getText().trim().isEmpty()) {
-                mostrarAlerta("Error", "Debe ingresar o buscar un ID de trámite primero.");
-                return;
-            }
-
-            int idTramiteActual = Integer.parseInt(txtBusquedaId.getText().trim());
-
-            requisitoService.guardarRequisitos(
-                    idTramiteActual,
-                    chkCertificado.isSelected(),
-                    chkPago.isSelected(),
-                    chkSinMultas.isSelected(),
-                    txtObservaciones.getText(),
-                    null
-            );
-
-            mostrarAlerta("Éxito", "Requisitos procesados correctamente.");
-            limpiarCampos();
-
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "El ID del trámite debe ser un número válido.");
-        } catch (Exception e) {
-            mostrarAlerta("Error de Base de Datos", e.getMessage());
-        }
-    }
-
     private void limpiarCampos() {
-        if (txtBusquedaId != null) txtBusquedaId.clear();
-        if (lblNombreCliente != null) lblNombreCliente.setText("");
+        txtBusquedaId.clear();
+        lblNombreCliente.setText("");
         chkCertificado.setSelected(false);
         chkPago.setSelected(false);
         chkSinMultas.setSelected(false);
         txtObservaciones.clear();
+        tramiteEncontrado = null;
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

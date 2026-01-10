@@ -1,63 +1,86 @@
 package ui.analista;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import model.Tramite;
 import service.TramiteService;
+import java.util.List;
 
 public class RegistrarExamenController {
 
     @FXML private TextField txtBusquedaId;
     @FXML private TextField txtNotaTeorica;
     @FXML private TextField txtNotaPractica;
+    @FXML private Label lblNombreCliente;
 
     private final TramiteService tramiteService = new TramiteService();
+    private Tramite tramiteEncontrado;
 
     @FXML
-    private void handleGuardarResultados() {
+    private void handleBuscar() {
         try {
-            // 1. Validación de campos vacíos
-            if (txtBusquedaId.getText().trim().isEmpty() ||
-                    txtNotaTeorica.getText().trim().isEmpty() ||
-                    txtNotaPractica.getText().trim().isEmpty()) {
-                mostrarAlerta("Campos Requeridos", "Por favor, complete todos los campos.");
+            String busqueda = txtBusquedaId.getText().trim();
+            lblNombreCliente.setText(""); // Limpiar previo
+            tramiteEncontrado = null;
+
+            if (busqueda.isEmpty()) {
+                mostrarAlerta("Atención", "Ingrese una cédula o ID para buscar.");
                 return;
             }
 
-            // 2. Captura y conversión de datos
-            int id = Integer.parseInt(txtBusquedaId.getText().trim());
+            // Lógica Dual: Cédula (10) o ID (menos de 10)
+            if (busqueda.length() == 10 && busqueda.matches("[0-9]+")) {
+                List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
+                if (resultados != null && !resultados.isEmpty()) tramiteEncontrado = resultados.get(0);
+            } else if (busqueda.matches("[0-9]+")) {
+                tramiteEncontrado = tramiteService.buscarTramitePorId(Integer.parseInt(busqueda));
+            }
+
+            if (tramiteEncontrado != null) {
+                lblNombreCliente.setText("Solicitante: " + tramiteEncontrado.getNombre());
+                lblNombreCliente.setStyle("-fx-text-fill: #27ae60;");
+            } else {
+                lblNombreCliente.setText("No se encontró el trámite.");
+                lblNombreCliente.setStyle("-fx-text-fill: #c0392b;");
+            }
+        } catch (Exception e) {
+            mostrarAlerta("Error", "Error en la búsqueda: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleGuardarResultados() {
+        if (tramiteEncontrado == null) {
+            mostrarAlerta("Error", "Debe buscar y encontrar un trámite primero.");
+            return;
+        }
+
+        try {
             double notaT = Double.parseDouble(txtNotaTeorica.getText().replace(",", "."));
             double notaP = Double.parseDouble(txtNotaPractica.getText().replace(",", "."));
 
-            // 3. Llamada al servicio (Corregido: 3 parámetros coincidiendo con el Service)
-            tramiteService.registrarExamen(id, notaT, notaP);
+            tramiteService.registrarExamen(tramiteEncontrado.getId(), notaT, notaP);
 
-            mostrarAlerta("Éxito", "Los resultados han sido procesados y el estado del trámite actualizado.");
+            mostrarAlerta("Éxito", "Notas guardadas para: " + tramiteEncontrado.getNombre());
             limpiarCampos();
-
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error de Formato", "El ID debe ser entero y las notas valores numéricos.");
         } catch (Exception e) {
-            // Muestra errores de lógica (ej: notas fuera de rango o ID inexistente)
-            mostrarAlerta("Validación del Sistema", e.getMessage());
+            mostrarAlerta("Error", "Verifique las notas: " + e.getMessage());
         }
     }
 
     @FXML
     private void handleRegresar() {
-        if (txtNotaTeorica.getScene() != null) {
-            StackPane contentArea = (StackPane) txtNotaTeorica.getScene().lookup("#contentArea");
-            if (contentArea != null) {
-                contentArea.getChildren().clear();
-            }
-        }
+        StackPane contentArea = (StackPane) txtNotaTeorica.getScene().lookup("#contentArea");
+        if (contentArea != null) contentArea.getChildren().clear();
     }
 
     private void limpiarCampos() {
-        if (txtBusquedaId != null) txtBusquedaId.clear();
+        txtBusquedaId.clear();
         txtNotaTeorica.clear();
         txtNotaPractica.clear();
+        lblNombreCliente.setText("");
+        tramiteEncontrado = null;
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {

@@ -2,17 +2,20 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="25" alignment="TOP_CENTER" style="-fx-padding: 40; -fx-background-color: white;"
+<VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 40; -fx-background-color: white;"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ui.analista.RegistrarExamenController">
 
     <Label text="REGISTRO DE EXÁMENES" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-    <Label text="Ingrese los resultados de las evaluaciones (Mínimo 14 para aprobar)" style="-fx-text-fill: #7f8c8d;"/>
 
     <HBox spacing="10" alignment="CENTER" style="-fx-background-color: #f4f7f6; -fx-padding: 15; -fx-background-radius: 5;">
-        <Label text="ID Trámite:" style="-fx-font-weight: bold;"/>
-        <TextField fx:id="txtBusquedaId" promptText="Ej: 15" prefWidth="100"/>
+        <Label text="Cédula o ID:" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtBusquedaId" promptText="Ej: 1756236806" prefWidth="150"/>
+        <Button text="Buscar" onAction="#handleBuscar"
+                style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-cursor: hand;"/>
     </HBox>
+
+    <Label fx:id="lblNombreCliente" text="" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
 
     <GridPane hgap="15" vgap="20" alignment="CENTER">
         <Label text="Nota Examen Teórico:" style="-fx-font-weight: bold;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -24,9 +27,9 @@
 
     <HBox spacing="15" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
         <Button text="Guardar resultados" onAction="#handleGuardarResultados"
-                style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25;"/>
+                style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 25; -fx-cursor: hand;"/>
         <Button text="Regresar" onAction="#handleRegresar"
-                style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-padding: 10 25;"/>
+                style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-padding: 10 25; -fx-cursor: hand;"/>
     </HBox>
 
 </VBox>
