@@ -1,137 +1,95 @@
 package ui.analista;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import model.Tramite;
-import service.RequisitoService;
 import service.TramiteService;
+import java.io.IOException;
+import java.util.List;
 
 public class DetalleTramiteController {
 
     @FXML private TextField txtBusquedaId;
-    @FXML private Label lblNombre, lblCedula, lblTipoLicencia, lblEstadoActual;
-    @FXML private CheckBox chkCertificadoSalud, chkPagoBanco, chkSinMultas;
-    @FXML private TextField txtNotaTeorica, txtNotaPractica;
+    @FXML private Label lblNombre, lblCedula, lblEstadoActual;
+    @FXML private Button btnGenerarLicencia;
 
-    private final RequisitoService requisitoService = new RequisitoService();
-    private final TramiteService tramiteService = new TramiteService();
+    private TramiteService tramiteService = new TramiteService();
+    private Tramite tramiteEncontrado;
 
     @FXML
     private void handleBuscar() {
-        String idStr = txtBusquedaId.getText().trim();
-        if (idStr.isEmpty()) {
-            mostrarAlerta("Atención", "Por favor ingrese un ID de trámite para buscar.");
-            return;
-        }
-
         try {
-            int id = Integer.parseInt(idStr);
-            Tramite tramiteEncontrado = tramiteService.buscarTramitePorId(id);
+            String cedula = txtBusquedaId.getText().trim();
+            if (cedula.isEmpty()) return;
 
-            if (tramiteEncontrado != null) {
-                lblNombre.setText(tramiteEncontrado.getNombre());
-                lblCedula.setText(tramiteEncontrado.getCedula());
+            // Busca el tramite en la base de datos
+            List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
 
-                // CORRECCIÓN: Se cambió getTipo() por el nombre real en el modelo
-                lblTipoLicencia.setText(tramiteEncontrado.getTipoLicencia());
+            if (resultados != null && !resultados.isEmpty()) {
+                tramiteEncontrado = resultados.get(0);
+                lblNombre.setText("Nombre: " + tramiteEncontrado.getNombre());
+                lblCedula.setText("Cédula: " + tramiteEncontrado.getCedula());
+                lblEstadoActual.setText("Estado: " + tramiteEncontrado.getEstado());
 
-                lblEstadoActual.setText(tramiteEncontrado.getEstado().toUpperCase());
+                // --- SOLUCIÓN AL BOTÓN DESHABILITADO ---
+                // Permitimos el botón si está 'aprobado' O si ya es 'licencia_emitida'
+                // Esto permite entrar a la siguiente pantalla aunque ya se haya generado antes
+                String estado = tramiteEncontrado.getEstado().toLowerCase();
+                boolean puedePasar = estado.equals("aprobado") || estado.equals("licencia_emitida");
+
+                btnGenerarLicencia.setDisable(!puedePasar);
+
             } else {
-                mostrarAlerta("No encontrado", "No se encontró ningún trámite con el ID: " + id);
-                limpiarLabels();
+                tramiteEncontrado = null;
+                btnGenerarLicencia.setDisable(true);
+                mostrarAlerta("No encontrado", "No existen trámites para la cédula: " + cedula);
             }
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "El ID debe ser un número entero.");
         } catch (Exception e) {
-            mostrarAlerta("Error de Conexión", "No se pudo consultar la base de datos: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void handleGuardarRequisitos() {
-        try {
-            if (txtBusquedaId.getText().isEmpty()) throw new Exception("Busque un trámite primero.");
-
-            int id = Integer.parseInt(txtBusquedaId.getText());
-
-            // Se envía '1' en lugar de null para evitar errores en campos NOT NULL de la BD
-            requisitoService.guardarRequisitos(
-                    id,
-                    chkCertificadoSalud.isSelected(),
-                    chkPagoBanco.isSelected(),
-                    chkSinMultas.isSelected(),
-                    "Actualización desde detalle",
-                    1
-            );
-            mostrarAlerta("Éxito", "Requisitos actualizados.");
-            handleBuscar(); // Refresca los datos en pantalla
-        } catch (Exception e) {
-            mostrarAlerta("Error", e.getMessage());
-        }
-    }
-
-    @FXML
-    private void handleGuardarNotas() {
-        try {
-            if (txtBusquedaId.getText().isEmpty()) throw new Exception("Busque un trámite primero.");
-
-            int id = Integer.parseInt(txtBusquedaId.getText());
-
-            if(txtNotaTeorica.getText().isEmpty() || txtNotaPractica.getText().isEmpty()) {
-                throw new Exception("Debe ingresar ambas notas.");
-            }
-
-            double nt = Double.parseDouble(txtNotaTeorica.getText());
-            double np = Double.parseDouble(txtNotaPractica.getText());
-
-            // Se envía '1' como ID de usuario creador
-            tramiteService.registrarExamen(id, nt, np, 1);
-
-            mostrarAlerta("Éxito", "Notas registradas correctamente.");
-            handleBuscar(); // Refresca para ver si el estado cambió a Aprobado/Reprobado
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "Ingrese notas válidas (números entre 0 y 20).");
-        } catch (Exception e) {
-            mostrarAlerta("Error", e.getMessage());
+            e.printStackTrace();
+            mostrarAlerta("Error", "Error al consultar la base de datos.");
         }
     }
 
     @FXML
     private void handleGenerarLicencia() {
-        String estado = lblEstadoActual.getText();
-        if (estado != null && estado.equalsIgnoreCase("APROBADO")) {
-            mostrarAlerta("Navegación", "Cambiando a pantalla de Generar Licencia...");
-            // Aquí iría el código para cargar el FXML de GenerarLicencia
-        } else {
-            mostrarAlerta("Atención", "El trámite debe estar en estado APROBADO para generar la licencia.");
-        }
-    }
+        if (tramiteEncontrado == null) return;
 
-    @FXML
-    private void handleRegresar() {
-        if (txtBusquedaId.getScene() != null) {
-            StackPane contentArea = (StackPane) txtBusquedaId.getScene().lookup("#contentArea");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
+
+            // Configuración del controlador para evitar errores de casteo
+            loader.setControllerFactory(type -> {
+                if (type == ui.analista.GenerarLicenciaController.class || type == ui.admin.GenerarLicenciaController.class) {
+                    return new ui.analista.GenerarLicenciaController();
+                }
+                try { return type.getDeclaredConstructor().newInstance(); } catch (Exception e) { throw new RuntimeException(e); }
+            });
+
+            Parent root = loader.load();
+
+            // Pasamos el tramite al controlador de la siguiente vista
+            ui.analista.GenerarLicenciaController controller = loader.getController();
+            controller.initData(tramiteEncontrado);
+
+            // Cambiamos el contenido del área central
+            StackPane contentArea = (StackPane) btnGenerarLicencia.getScene().lookup("#contentArea");
             if (contentArea != null) {
-                contentArea.getChildren().clear();
+                contentArea.getChildren().setAll(root);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo cargar la vista de la licencia.");
         }
     }
 
-    private void limpiarLabels() {
-        lblNombre.setText("---");
-        lblCedula.setText("---");
-        lblTipoLicencia.setText("---");
-        lblEstadoActual.setText("---");
-        txtNotaTeorica.clear();
-        txtNotaPractica.clear();
-    }
-
-    private void mostrarAlerta(String titulo, String mensaje) {
+    private void mostrarAlerta(String titulo, String msg) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
         alert.setHeaderText(null);
-        alert.setContentText(mensaje);
+        alert.setContentText(msg);
         alert.showAndWait();
     }
 }

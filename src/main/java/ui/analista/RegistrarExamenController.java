@@ -17,7 +17,7 @@ public class RegistrarExamenController {
     @FXML
     private void handleGuardarResultados() {
         try {
-            // Validación mínima de UI: campos no vacíos
+            // 1. Validación de campos vacíos
             if (txtBusquedaId.getText().trim().isEmpty() ||
                     txtNotaTeorica.getText().trim().isEmpty() ||
                     txtNotaPractica.getText().trim().isEmpty()) {
@@ -25,26 +25,24 @@ public class RegistrarExamenController {
                 return;
             }
 
-            // Captura de datos
+            // 2. Captura y conversión de datos
             int id = Integer.parseInt(txtBusquedaId.getText().trim());
             double notaT = Double.parseDouble(txtNotaTeorica.getText().replace(",", "."));
             double notaP = Double.parseDouble(txtNotaPractica.getText().replace(",", "."));
 
+            // 3. Llamada al servicio (Corregido: 3 parámetros coincidiendo con el Service)
+            tramiteService.registrarExamen(id, notaT, notaP);
 
-            tramiteService.registrarExamen(id, notaT, notaP, null);
-
-            mostrarAlerta("Éxito", "Los resultados han sido procesados por el sistema.");
+            mostrarAlerta("Éxito", "Los resultados han sido procesados y el estado del trámite actualizado.");
             limpiarCampos();
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error de Formato", "El ID y las notas deben ser valores numéricos.");
+            mostrarAlerta("Error de Formato", "El ID debe ser entero y las notas valores numéricos.");
         } catch (Exception e) {
-            // Aquí el Service lanzará sus propias excepciones (ej: "Nota fuera de rango")
-            // y el Controller simplemente las muestra al usuario.
+            // Muestra errores de lógica (ej: notas fuera de rango o ID inexistente)
             mostrarAlerta("Validación del Sistema", e.getMessage());
         }
     }
-
 
     @FXML
     private void handleRegresar() {

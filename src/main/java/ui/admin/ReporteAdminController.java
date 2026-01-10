@@ -4,8 +4,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
+import javafx.stage.FileChooser;
 import model.Tramite;
-import service.TramiteService; // Usamos el servicio que ya tienes
+import service.TramiteService;
+import java.io.File;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ReporteAdminController {
@@ -18,7 +21,6 @@ public class ReporteAdminController {
     @FXML private TableColumn<Tramite, String> colNombre, colCedula, colEstado, colFecha;
     @FXML private Label lblTotalTramites, lblTotalAprobados, lblTotalRechazados;
 
-    // Cambiamos a TramiteService
     private TramiteService tramiteService = new TramiteService();
 
     @FXML
@@ -26,18 +28,20 @@ public class ReporteAdminController {
         cbEstado.setItems(FXCollections.observableArrayList("Todos", "pendiente", "aprobado", "reprobado"));
         cbTipoLicencia.setItems(FXCollections.observableArrayList("Todos", "Tipo A", "Tipo B", "Tipo C"));
 
-        // Vincular columnas con los atributos de la clase Tramite
+        // Valores por defecto
+        cbEstado.setValue("Todos");
+        cbTipoLicencia.setValue("Todos");
+
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCedula.setCellValueFactory(new PropertyValueFactory<>("cedula"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
-        colFecha.setCellValueFactory(new PropertyValueFactory<>("fechaCreacion"));
+        colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
     }
 
     @FXML
     private void handleBuscar() {
         try {
-            // Llamamos al nuevo método en TramiteService
             List<Tramite> resultados = tramiteService.consultarTramitesReporte(
                     dpInicio.getValue(),
                     dpFin.getValue(),
@@ -50,14 +54,13 @@ public class ReporteAdminController {
             actualizarTotales(resultados);
 
         } catch (Exception e) {
-            mostrarAlerta("Error", "Error al consultar: " + e.getMessage());
+            mostrarAlerta("Error", "No se pudo realizar la búsqueda: " + e.getMessage());
         }
     }
 
     private void actualizarTotales(List<Tramite> lista) {
-        long aprobados = lista.stream().filter(t -> t.getEstado().equalsIgnoreCase("aprobado")).count();
-        long rechazados = lista.stream().filter(t -> t.getEstado().equalsIgnoreCase("reprobado")).count();
-
+        long aprobados = lista.stream().filter(t -> "aprobado".equalsIgnoreCase(t.getEstado())).count();
+        long rechazados = lista.stream().filter(t -> "reprobado".equalsIgnoreCase(t.getEstado())).count();
         lblTotalTramites.setText(String.valueOf(lista.size()));
         lblTotalAprobados.setText(String.valueOf(aprobados));
         lblTotalRechazados.setText(String.valueOf(rechazados));
@@ -65,13 +68,25 @@ public class ReporteAdminController {
 
     @FXML
     private void handleExportar() {
-        // Lógica simple de exportación por consola o puedes implementar un FileChooser
-        if(tableReportes.getItems().isEmpty()) {
+        List<Tramite> lista = tableReportes.getItems();
+        if (lista.isEmpty()) {
             mostrarAlerta("Atención", "No hay datos para exportar.");
             return;
         }
-        System.out.println("Exportando datos a CSV...");
-        mostrarAlerta("Éxito", "Datos listos para exportar (simulado).");
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Guardar Reporte CSV");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV", "*.csv"));
+        File file = chooser.showSaveDialog(tableReportes.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                tramiteService.exportarA_CSV(lista, file);
+                mostrarAlerta("Éxito", "Archivo guardado en: " + file.getAbsolutePath());
+            } catch (Exception e) {
+                mostrarAlerta("Error", "Error al exportar: " + e.getMessage());
+            }
+        }
     }
 
     private void mostrarAlerta(String titulo, String mensaje) {
