@@ -6,6 +6,7 @@ import javafx.scene.layout.StackPane;
 import model.Tramite;
 import model.Licencia;
 import service.LicenciaService;
+import ui.base.BaseController;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -16,7 +17,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import java.io.IOException;
 
-public class GenerarLicenciaController {
+public class GenerarLicenciaController extends BaseController { // <--- EXTENDS
 
     @FXML private Label lblNumeroLicencia, lblNombreConductor, lblTipoLicencia, lblFechaEmision, lblFechaVencimiento;
     @FXML private Button btnGenerar, btnExportar;
@@ -25,13 +26,17 @@ public class GenerarLicenciaController {
     private Licencia licenciaGenerada;
     private final LicenciaService licenciaService = new LicenciaService();
 
+    @Override
+    public void limpiarCampos() {
+        // Implementación requerida por BaseController
+        lblNumeroLicencia.setText("");
+        btnExportar.setDisable(true);
+    }
+
     public void initData(Tramite tramite) {
         this.tramiteActivo = tramite;
-
         lblNombreConductor.setText(tramite.getNombre());
         lblNumeroLicencia.setText("PENDIENTE GENERAR");
-
-        // CORRECCIÓN AQUÍ: de getTipo() a getTipoLicencia()
         lblTipoLicencia.setText(tramite.getTipoLicencia());
 
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -45,7 +50,7 @@ public class GenerarLicenciaController {
     @FXML
     private void handleGenerar() {
         try {
-            // Pasamos el ID del trámite y un 1 como ID de usuario (puedes cambiarlo por el del login)
+            // Auditoría: Usamos el ID del trámite y el usuario 1 (ajustar según sesión)
             this.licenciaGenerada = licenciaService.generarLicencia(tramiteActivo.getId(), 1);
 
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -53,19 +58,19 @@ public class GenerarLicenciaController {
             lblFechaEmision.setText(licenciaGenerada.getFechaEmision().format(fmt));
             lblFechaVencimiento.setText(licenciaGenerada.getFechaVencimiento().format(fmt));
 
-            mostrarAlerta("Éxito", "Licencia generada oficialmente con número: " + licenciaGenerada.getNumeroLicencia());
+            // USAMOS EL MÉTODO HEREDADO
+            mostrarAlerta("Éxito", "Licencia generada oficialmente: " + licenciaGenerada.getNumeroLicencia(), Alert.AlertType.INFORMATION);
 
             btnGenerar.setDisable(true);
             btnExportar.setDisable(false);
         } catch (Exception e) {
-            mostrarAlerta("Error de Emisión", e.getMessage());
+            mostrarAlerta("Error de Emisión", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void handleExportarPDF() {
         if (licenciaGenerada == null) return;
-
         String nombreArchivo = "Licencia_" + tramiteActivo.getCedula() + ".pdf";
 
         try (PDDocument documento = new PDDocument()) {
@@ -80,21 +85,16 @@ public class GenerarLicenciaController {
                 escribirTexto(contenido, "NUMERO DE LICENCIA: " + licenciaGenerada.getNumeroLicencia(), 100, startY, 12, true);
                 escribirTexto(contenido, "CONDUCTOR: " + tramiteActivo.getNombre(), 100, startY - 30, 12, false);
                 escribirTexto(contenido, "CEDULA: " + tramiteActivo.getCedula(), 100, startY - 60, 12, false);
-
-                // CORRECCIÓN AQUÍ: de getTipo() a getTipoLicencia()
                 escribirTexto(contenido, "TIPO: " + tramiteActivo.getTipoLicencia(), 100, startY - 90, 12, false);
-
                 escribirTexto(contenido, "EMISION: " + lblFechaEmision.getText(), 100, startY - 120, 12, false);
                 escribirTexto(contenido, "VENCIMIENTO: " + lblFechaVencimiento.getText(), 100, startY - 150, 12, true);
-
-                escribirTexto(contenido, "Documento valido como titulo habilitante para conducir.", 100, 450, 10, false);
             }
 
             documento.save(nombreArchivo);
-            mostrarAlerta("PDF Generado", "El archivo PDF se ha guardado como: " + nombreArchivo);
+            mostrarAlerta("PDF Generado", "Guardado como: " + nombreArchivo, Alert.AlertType.INFORMATION);
 
         } catch (IOException e) {
-            mostrarAlerta("Error PDF", "Error al crear el archivo: " + e.getMessage());
+            mostrarAlerta("Error PDF", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -102,26 +102,15 @@ public class GenerarLicenciaController {
     private void handleRegresar() {
         if (lblNombreConductor.getScene() != null) {
             StackPane contentArea = (StackPane) lblNombreConductor.getScene().lookup("#contentArea");
-            if (contentArea != null) {
-                contentArea.getChildren().clear();
-            }
+            if (contentArea != null) contentArea.getChildren().clear();
         }
     }
 
     private void escribirTexto(PDPageContentStream cs, String texto, float x, float y, int size, boolean negrita) throws IOException {
         cs.beginText();
-        // Usamos fuentes estándar de PDFBox
         cs.setFont(negrita ? PDType1Font.HELVETICA_BOLD : PDType1Font.HELVETICA, size);
         cs.newLineAtOffset(x, y);
         cs.showText(texto);
         cs.endText();
-    }
-
-    private void mostrarAlerta(String titulo, String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
     }
 }

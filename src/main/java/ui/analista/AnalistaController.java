@@ -10,82 +10,63 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import model.Tramite;
+import ui.base.BaseController;
+import ui.admin.GenerarLicenciaController;
 import java.io.IOException;
 import java.net.URL;
 
 /**
- * Controlador principal de la interfaz del Analista.
- * Gestiona la navegación entre las diferentes funcionalidades del sistema.
+ * Esta clase hereda de BaseController para reutilizar funciones comunes
+ * como mostrar alertas y cumplir con el requisito de Herencia en la UI.
  */
-public class AnalistaController {
+public class AnalistaController extends BaseController {
 
     @FXML private Button btnCerrarSesion;
     @FXML private StackPane contentArea;
 
+    // Implementación obligatoria del método abstracto de BaseController (Polimorfismo)
+    @Override
+    public void limpiarCampos() {
+        // El panel principal no tiene campos de texto, pero cumplimos con la estructura
+    }
+
     // --- MÉTODOS DE NAVEGACIÓN ---
+    // Usamos el mismo método cargarVista para no repetir código
 
-    @FXML
-    private void handleIrARegistro() {
-        cargarVista("/fxml/RegistrarSolicitanteView.fxml");
-    }
-
-    @FXML
-    private void handleIrAVerificar() {
-        cargarVista("/fxml/VerificarRequisitoView.fxml");
-    }
-
-    @FXML
-    private void handleIrAExamenes() {
-        cargarVista("/fxml/RegistrarExamenView.fxml");
-    }
-
-    @FXML
-    private void handleIrAGestion() {
-        cargarVista("/fxml/GestionTramiteView.fxml");
-    }
-
-    @FXML
-    private void handleIrADetalleBusqueda() {
-        cargarVista("/fxml/DetalleTramiteView.fxml");
-    }
-
-    @FXML
-    private void handleIrAGenerarLicencia() {
-        // Carga la vista sin datos previos (el usuario deberá buscar el trámite ahí)
-        cargarVista("/fxml/GenerarLicenciaView.fxml");
-    }
+    @FXML private void handleIrARegistro() { cargarVista("/fxml/RegistrarSolicitanteView.fxml"); }
+    @FXML private void handleIrAVerificar() { cargarVista("/fxml/VerificarRequisitoView.fxml"); }
+    @FXML private void handleIrAExamenes() { cargarVista("/fxml/RegistrarExamenView.fxml"); }
+    @FXML private void handleIrAGestion() { cargarVista("/fxml/GestionTramiteView.fxml"); }
+    @FXML private void handleIrADetalleBusqueda() { cargarVista("/fxml/DetalleTramiteView.fxml"); }
+    @FXML private void handleIrAGenerarLicencia() { cargarVista("/fxml/GenerarLicenciaView.fxml"); }
 
     /**
-     * MÉTODO CLAVE: Permite cargar la pantalla de licencia pasando un trámite específico.
-     * Útil cuando se viene desde la tabla de Gestión de Trámites.
+     * Carga la pantalla de licencia enviando los datos del trámite seleccionado.
      */
     public void cargarGenerarLicenciaConDatos(Tramite tramiteSeleccionado) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
             Parent root = loader.load();
 
-            // Pasamos el objeto Trámite al controlador de la Licencia
+            // Obtenemos el controlador de la vista cargada para pasarle el objeto
             GenerarLicenciaController controllerHijo = loader.getController();
             controllerHijo.initData(tramiteSeleccionado);
 
             setContenido(root);
-            System.out.println("✅ Generar Licencia cargado con trámite: " + tramiteSeleccionado.getId());
         } catch (IOException e) {
-            mostrarAlertaError("Error de Navegación", "No se pudo cargar la vista de licencia.");
-            e.printStackTrace();
+            // USAMOS EL MÉTODO HEREDADO: mostrarAlerta(titulo, mensaje, tipo)
+            mostrarAlerta("Error de Navegación", "No se pudo cargar la vista de licencia.", Alert.AlertType.ERROR);
         }
     }
 
-    // --- LÓGICA DE CARGA Y AJUSTE ---
-
     /**
-     * Carga un archivo FXML genérico y lo coloca en el área central.
+     * Método genérico para cargar archivos FXML en el centro de la pantalla.
      */
     private void cargarVista(String ruta) {
         try {
             URL fxmlUrl = getClass().getResource(ruta);
             if (fxmlUrl == null) {
-                System.err.println("❌ FXML no encontrado en: " + ruta);
+                mostrarAlerta("Error", "Archivo no encontrado: " + ruta, Alert.AlertType.ERROR);
                 return;
             }
 
@@ -93,19 +74,16 @@ public class AnalistaController {
             Parent root = loader.load();
 
             setContenido(root);
-            System.out.println("✅ Vista cargada: " + ruta);
         } catch (IOException e) {
-            mostrarAlertaError("Error de Carga", "Error al abrir la ventana: " + e.getMessage());
-            e.printStackTrace();
+            mostrarAlerta("Error de Carga", "Error al abrir la ventana: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     /**
-     * Limpia el contenedor, añade la nueva vista y la ajusta al tamaño disponible.
+     * Ajusta el tamaño de la nueva vista al tamaño del StackPane (Contenido dinámico).
      */
     private void setContenido(Parent nodo) {
         if (contentArea != null) {
-            // Ajuste dinámico de tamaño (Responsive)
             if (nodo instanceof Region region) {
                 region.prefWidthProperty().bind(contentArea.widthProperty());
                 region.prefHeightProperty().bind(contentArea.heightProperty());
@@ -125,15 +103,9 @@ public class AnalistaController {
             stageActual.setTitle("Login - Sistema de Licencias");
             stageActual.centerOnScreen();
         } catch (IOException e) {
-            mostrarAlertaError("Error", "No se pudo volver al login.");
+            mostrarAlerta("Error", "No se pudo volver al login.", Alert.AlertType.ERROR);
         }
     }
 
-    private void mostrarAlertaError(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
-    }
+    // NOTA: El método mostrarAlertaError fue eliminado porque ya se hereda de BaseController
 }

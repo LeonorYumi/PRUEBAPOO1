@@ -3,14 +3,22 @@ package ui.analista;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import model.Tramite;
 import service.TramiteService;
+import ui.base.BaseController;
+
 import java.io.IOException;
 import java.util.List;
 
-public class DetalleTramiteController {
+/**
+ * Este controlador hereda de BaseController para aplicar los principios de POO.
+ */
+public class DetalleTramiteController extends BaseController {
 
     @FXML private TextField txtBusquedaId;
     @FXML private Label lblNombre, lblCedula, lblEstadoActual;
@@ -19,13 +27,29 @@ public class DetalleTramiteController {
     private TramiteService tramiteService = new TramiteService();
     private Tramite tramiteEncontrado;
 
+    /**
+     * Implementación obligatoria del método abstracto (Polimorfismo).
+     * Limpia los labels y el campo de búsqueda.
+     */
+    @Override
+    public void limpiarCampos() {
+        txtBusquedaId.clear();
+        lblNombre.setText("Nombre: -");
+        lblCedula.setText("Cédula: -");
+        lblEstadoActual.setText("Estado: -");
+        btnGenerarLicencia.setDisable(true);
+    }
+
     @FXML
     private void handleBuscar() {
         try {
             String cedula = txtBusquedaId.getText().trim();
-            if (cedula.isEmpty()) return;
+            if (cedula.isEmpty()) {
+                mostrarAlerta("Atención", "Ingrese una cédula para buscar", Alert.AlertType.WARNING);
+                return;
+            }
 
-            // Busca el tramite en la base de datos
+            // Consultamos al Service (Abstracción: la UI no sabe de SQL)
             List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
 
             if (resultados != null && !resultados.isEmpty()) {
@@ -34,9 +58,7 @@ public class DetalleTramiteController {
                 lblCedula.setText("Cédula: " + tramiteEncontrado.getCedula());
                 lblEstadoActual.setText("Estado: " + tramiteEncontrado.getEstado());
 
-                // --- SOLUCIÓN AL BOTÓN DESHABILITADO ---
-                // Permitimos el botón si está 'aprobado' O si ya es 'licencia_emitida'
-                // Esto permite entrar a la siguiente pantalla aunque ya se haya generado antes
+                // Lógica de validación de estado
                 String estado = tramiteEncontrado.getEstado().toLowerCase();
                 boolean puedePasar = estado.equals("aprobado") || estado.equals("licencia_emitida");
 
@@ -45,11 +67,11 @@ public class DetalleTramiteController {
             } else {
                 tramiteEncontrado = null;
                 btnGenerarLicencia.setDisable(true);
-                mostrarAlerta("No encontrado", "No existen trámites para la cédula: " + cedula);
+                // USAMOS EL MÉTODO HEREDADO DEL PADRE
+                mostrarAlerta("No encontrado", "No existen trámites para la cédula: " + cedula, Alert.AlertType.INFORMATION);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            mostrarAlerta("Error", "Error al consultar la base de datos.");
+            mostrarAlerta("Error", "Error al consultar la base de datos.", Alert.AlertType.ERROR);
         }
     }
 
@@ -59,37 +81,22 @@ public class DetalleTramiteController {
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
-
-            // Configuración del controlador para evitar errores de casteo
-            loader.setControllerFactory(type -> {
-                if (type == ui.analista.GenerarLicenciaController.class || type == ui.admin.GenerarLicenciaController.class) {
-                    return new ui.analista.GenerarLicenciaController();
-                }
-                try { return type.getDeclaredConstructor().newInstance(); } catch (Exception e) { throw new RuntimeException(e); }
-            });
-
             Parent root = loader.load();
 
-            // Pasamos el tramite al controlador de la siguiente vista
-            ui.analista.GenerarLicenciaController controller = loader.getController();
+            // Pasamos los datos al controlador de la siguiente vista
+            // Nota: Aquí se usa el controlador que corresponda a tu paquete
+            ui.admin.GenerarLicenciaController controller = loader.getController();
             controller.initData(tramiteEncontrado);
 
-            // Cambiamos el contenido del área central
+            // Cambiamos el contenido del área central (Navegación dinámica)
             StackPane contentArea = (StackPane) btnGenerarLicencia.getScene().lookup("#contentArea");
             if (contentArea != null) {
                 contentArea.getChildren().setAll(root);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo cargar la vista de la licencia.");
+            mostrarAlerta("Error", "No se pudo cargar la vista de la licencia.", Alert.AlertType.ERROR);
         }
     }
 
-    private void mostrarAlerta(String titulo, String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
-    }
+    // El método mostrarAlerta() fue ELIMINADO de aquí porque ya lo tenemos en BaseController.
 }

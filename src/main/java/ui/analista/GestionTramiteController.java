@@ -13,11 +13,16 @@ import javafx.stage.Stage;
 import model.Tramite;
 import service.RequisitoService;
 import service.TramiteService;
+import ui.base.BaseController;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class GestionTramiteController {
+/**
+ * Controlador para la gestión y flujo de trámites.
+ * Aplica Herencia de BaseController para estandarizar la UI.
+ */
+public class GestionTramiteController extends BaseController {
 
     @FXML private TableView<Tramite> tablaTramites;
     @FXML private TableColumn<Tramite, Integer> colId;
@@ -28,6 +33,15 @@ public class GestionTramiteController {
     private final RequisitoService requisitoService = new RequisitoService();
     private final TramiteService tramiteService = new TramiteService();
     private ObservableList<Tramite> listaMaster = FXCollections.observableArrayList();
+
+    /**
+     * Implementación obligatoria del método abstracto (Polimorfismo).
+     */
+    @Override
+    public void limpiarCampos() {
+        comboFiltroEstado.setValue("Todos");
+        cargarDatosReales();
+    }
 
     @FXML
     public void initialize() {
@@ -53,6 +67,7 @@ public class GestionTramiteController {
         if (filtro == null || filtro.equals("Todos")) {
             tablaTramites.setItems(listaMaster);
         } else {
+            // Filtrado dinámico usando expresiones Lambda
             ObservableList<Tramite> filtrada = listaMaster.filtered(t ->
                     t.getEstado() != null && t.getEstado().equalsIgnoreCase(filtro)
             );
@@ -63,13 +78,14 @@ public class GestionTramiteController {
     private void cargarDatosReales() {
         try {
             listaMaster.clear();
+            // Abstracción: El controlador pide la lista, el Service decide cómo traerla
             List<Tramite> tramitesDesdeBD = tramiteService.listarTodosLosTramites();
             if (tramitesDesdeBD != null) {
                 listaMaster.addAll(tramitesDesdeBD);
             }
             tablaTramites.setItems(listaMaster);
         } catch (Exception e) {
-            mostrarAlerta("Error de Conexión", "No se pudieron obtener los datos: " + e.getMessage());
+            mostrarAlerta("Error de Conexión", "No se pudieron obtener los datos: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -80,9 +96,9 @@ public class GestionTramiteController {
             mostrarAlerta("Detalle del Trámite",
                     "ID: " + seleccionado.getId() +
                             "\nSolicitante: " + seleccionado.getNombre() +
-                            "\nEstado: " + seleccionado.getEstado());
+                            "\nEstado: " + seleccionado.getEstado(), Alert.AlertType.INFORMATION);
         } else {
-            mostrarAlerta("Atención", "Por favor, seleccione un trámite de la tabla.");
+            mostrarAlerta("Atención", "Por favor, seleccione un trámite de la tabla.", Alert.AlertType.WARNING);
         }
     }
 
@@ -90,14 +106,14 @@ public class GestionTramiteController {
     private void handleGenerarLicencia() {
         Tramite seleccionado = tablaTramites.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
-            mostrarAlerta("Atención", "Por favor, seleccione un trámite.");
+            mostrarAlerta("Atención", "Por favor, seleccione un trámite.", Alert.AlertType.WARNING);
             return;
         }
 
         if ("aprobado".equalsIgnoreCase(seleccionado.getEstado())) {
             abrirVentanaGenerar(seleccionado);
         } else {
-            mostrarAlerta("Acción denegada", "Solo trámites con estado 'aprobado' pueden generar licencia.");
+            mostrarAlerta("Acción denegada", "Solo trámites con estado 'aprobado' pueden generar licencia.", Alert.AlertType.ERROR);
         }
     }
 
@@ -106,8 +122,7 @@ public class GestionTramiteController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
             Parent root = loader.load();
 
-            // SOLUCIÓN AL ERROR DE CAST: Usamos reflexión para invocar initData
-            // No importa en qué paquete esté el controlador, esto funcionará.
+            // Pasamos datos al controlador de forma segura
             Object controller = loader.getController();
             try {
                 Method initMethod = controller.getClass().getMethod("initData", Tramite.class);
@@ -124,7 +139,7 @@ public class GestionTramiteController {
 
             cargarDatosReales();
         } catch (IOException e) {
-            mostrarAlerta("Error", "No se pudo abrir la ventana: " + e.getMessage());
+            mostrarAlerta("Error", "No se pudo abrir la ventana: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -141,14 +156,16 @@ public class GestionTramiteController {
         colAcciones.setCellFactory(param -> new TableCell<>() {
             private final Button btnValidar = new Button("Validar");
             {
-                btnValidar.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white;");
+                btnValidar.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-border-radius: 5;");
                 btnValidar.setOnAction(event -> {
                     Tramite t = getTableView().getItems().get(getIndex());
                     try {
+                        // Simulación de validación de requisitos
                         requisitoService.guardarRequisitos(t.getId(), true, true, true, "Validación Automática", 1);
                         cargarDatosReales();
+                        mostrarAlerta("Éxito", "Trámite validado correctamente", Alert.AlertType.INFORMATION);
                     } catch (Exception e) {
-                        mostrarAlerta("Error", "No se pudo validar: " + e.getMessage());
+                        mostrarAlerta("Error", "No se pudo validar: " + e.getMessage(), Alert.AlertType.ERROR);
                     }
                 });
             }
@@ -160,17 +177,10 @@ public class GestionTramiteController {
                     setGraphic(null);
                 } else {
                     Tramite t = getTableView().getItems().get(getIndex());
+                    // El botón solo aparece si el trámite está pendiente
                     setGraphic("pendiente".equalsIgnoreCase(t.getEstado()) ? btnValidar : null);
                 }
             }
         });
-    }
-
-    private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }

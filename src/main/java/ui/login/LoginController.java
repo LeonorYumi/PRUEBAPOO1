@@ -51,6 +51,7 @@ public class LoginController {
             return;
         }
 
+
         try {
             // Llamada al servicio que usa SHA2 en el DAO
             Usuario u = usuarioService.iniciarSesion(usuarioStr, passwordStr);
@@ -113,5 +114,10 @@ public class LoginController {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+    @FXML
+    private void handleExit() {
+        // Esto cierra la aplicación por completo
+        System.exit(0);
     }
 }

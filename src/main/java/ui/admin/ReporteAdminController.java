@@ -7,13 +7,13 @@ import javafx.collections.FXCollections;
 import javafx.stage.FileChooser;
 import model.Tramite;
 import service.TramiteService;
-
+import ui.base.BaseController;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.util.List;
 
-public class ReporteAdminController {
+public class ReporteAdminController extends BaseController { // <--- EXTENDS
 
     @FXML private DatePicker dpInicio, dpFin;
     @FXML private ComboBox<String> cbEstado, cbTipoLicencia;
@@ -35,12 +35,25 @@ public class ReporteAdminController {
         cbEstado.setValue("Todos");
         cbTipoLicencia.setValue("Todos");
 
-        // 2. Vincular Columnas (Asegúrate que estos nombres coincidan con los Getters de tu clase Tramite)
+        // 2. Vincular Columnas
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCedula.setCellValueFactory(new PropertyValueFactory<>("cedula"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
+    }
+
+    /**
+     * Implementación obligatoria por Herencia (Polimorfismo)
+     */
+    @Override
+    public void limpiarCampos() {
+        dpInicio.setValue(null);
+        dpFin.setValue(null);
+        cbEstado.setValue("Todos");
+        cbTipoLicencia.setValue("Todos");
+        txtCedulaFiltro.clear();
+        tableReportes.getItems().clear();
     }
 
     @FXML
@@ -58,7 +71,8 @@ public class ReporteAdminController {
             actualizarTotales(resultados);
 
         } catch (Exception e) {
-            mostrarAlerta("Error de Búsqueda", "No se pudieron cargar los datos: " + e.getMessage());
+            // USAMOS EL MÉTODO HEREDADO DEL PADRE
+            mostrarAlerta("Error de Búsqueda", "No se pudieron cargar los datos: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -79,54 +93,40 @@ public class ReporteAdminController {
 
     @FXML
     private void handleExportar() {
-        // Obtenemos los datos que la tabla está mostrando actualmente
         List<Tramite> lista = tableReportes.getItems();
 
         if (lista == null || lista.isEmpty()) {
-            mostrarAlerta("Sin Datos", "La tabla está vacía. Realice una búsqueda antes de exportar.");
+            mostrarAlerta("Sin Datos", "La tabla está vacía.", Alert.AlertType.WARNING);
             return;
         }
 
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Exportar Reporte a Excel (CSV)");
-        chooser.setInitialFileName("Reporte_Sistema_Licencias.csv");
+        chooser.setInitialFileName("Reporte_Licencias.csv");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos CSV", "*.csv"));
 
         File file = chooser.showSaveDialog(tableReportes.getScene().getWindow());
 
         if (file != null) {
-            // Usamos PrintWriter para una escritura más directa y evitar archivos en blanco
             try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
-
-                // CABECERA (Punto y coma para Excel en español)
+                // Cabecera para Excel
                 pw.println("ID Tramite;Nombre Solicitante;Cedula;Estado;Fecha");
 
-                // DATOS
                 for (Tramite t : lista) {
-                    pw.print(t.getId() + ";");
-                    pw.print((t.getNombre() != null ? t.getNombre() : "N/A") + ";");
-                    pw.print((t.getCedula() != null ? t.getCedula() : "N/A") + ";");
-                    pw.print((t.getEstado() != null ? t.getEstado() : "N/A") + ";");
-                    pw.println(t.getFecha() != null ? t.getFecha().toString() : "N/A");
+                    pw.println(String.format("%d;%s;%s;%s;%s",
+                            t.getId(),
+                            t.getNombre() != null ? t.getNombre() : "N/A",
+                            t.getCedula() != null ? t.getCedula() : "N/A",
+                            t.getEstado() != null ? t.getEstado() : "N/A",
+                            t.getFecha() != null ? t.getFecha() : "N/A"
+                    ));
                 }
-
-                // Forzamos el guardado de los datos en el archivo
                 pw.flush();
-
-                mostrarAlerta("Exportación Exitosa", "Se han guardado " + lista.size() + " registros correctamente.");
+                mostrarAlerta("Exportación Exitosa", "Se han guardado los registros.", Alert.AlertType.INFORMATION);
 
             } catch (Exception e) {
-                mostrarAlerta("Error al Guardar", "No se pudo generar el archivo: " + e.getMessage());
-                e.printStackTrace();
+                mostrarAlerta("Error al Guardar", e.getMessage(), Alert.AlertType.ERROR);
             }
         }
-    }
-
-    private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }

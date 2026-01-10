@@ -4,16 +4,25 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.Alert; // Necesario para el tipo de alerta
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import ui.base.BaseController;
 import java.io.IOException;
 
-public class AdminController {
+// AHORA TU CLASE HEREDA DE BASECONTROLLER
+public class AdminController extends BaseController {
 
     @FXML private Button btnCerrarSesion;
     @FXML private StackPane contentArea;
+
+    // Implementamos el método abstracto que definimos en la base
+    @Override
+    public void limpiarCampos() {
+        // En este controlador no hay campos de texto que limpiar,
+        // pero el requisito de POO nos obliga a tener el método.
+    }
 
     private void cargarVista(String fxmlPath) {
         try {
@@ -23,45 +32,26 @@ public class AdminController {
             }
             Parent view = loader.load();
 
-            // 1. Limpiamos el área y cargamos la nueva vista
             contentArea.getChildren().setAll(view);
-
-            // 2. LA SOLUCIÓN DEFINITIVA:
-            // Forzamos el foco a un elemento que no sea un botón del menú.
-            // Esto quita automáticamente el resaltado azul de "Gestión de Usuarios".
             contentArea.setFocusTraversable(true);
             contentArea.requestFocus();
 
         } catch (IOException e) {
             e.printStackTrace();
-            mostrarAlertaError("Error", "No se pudo cargar la vista.");
+            // USAMOS EL MÉTODO HEREDADO DEL PADRE
+            mostrarAlerta("Error", "No se pudo cargar la vista: " + fxmlPath, Alert.AlertType.ERROR);
         }
     }
 
-    // --- OPERACIONES COMPARTIDAS (Analista + Admin) ---
+    // --- MÉTODOS DE NAVEGACIÓN (Se quedan igual) ---
     @FXML private void handleRegistrarSolicitante() { cargarVista("/fxml/RegistrarSolicitanteView.fxml"); }
     @FXML private void handleVerificarRequisitos() { cargarVista("/fxml/VerificarRequisitoView.fxml"); }
     @FXML private void handleRegistrarExamenes() { cargarVista("/fxml/RegistrarExamenView.fxml"); }
     @FXML private void handleGestionTramites() { cargarVista("/fxml/GestionTramiteView.fxml"); }
-
-    /**
-     * Acceso directo a la cola de impresión de licencias (Aprobados).
-     */
-    @FXML private void handleGenerarLicencia() {
-        cargarVista("/fxml/GenerarLicenciaView.fxml");
-    }
-
-    // --- OPERACIONES EXCLUSIVAS DE ADMINISTRADOR ---
+    @FXML private void handleGenerarLicencia() { cargarVista("/fxml/GenerarLicenciaView.fxml"); }
     @FXML private void handleGestionUsuarios() { cargarVista("/fxml/GestionUsuarioView.fxml"); }
     @FXML private void handleReportes() { cargarVista("/fxml/ReporteAdminView.fxml"); }
-
-    /**
-     * Carga el Dashboard de estadísticas con el gráfico de pastel.
-     */
-    @FXML
-    private void handleDashboard() {
-        cargarVista("/fxml/DashboardTotalesView.fxml");
-    }
+    @FXML private void handleDashboard() { cargarVista("/fxml/DashboardTotalesView.fxml"); }
 
     @FXML
     private void handleCerrarSesion() {
@@ -76,15 +66,7 @@ public class AdminController {
             Stage currentStage = (Stage) btnCerrarSesion.getScene().getWindow();
             currentStage.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo cerrar sesión", Alert.AlertType.ERROR);
         }
-    }
-
-    private void mostrarAlertaError(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }
