@@ -11,13 +11,13 @@
                 <VBox spacing="2">
                     <Label text="CONTROL DE ACCESO Y USUARIOS"
                            style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                    <Label text="Administración de cuentas y permisos del personal."
+                    <Label text="Administración de cuentas y permisos del personal del sistema."
                            style="-fx-text-fill: #95a5a6; -fx-font-size: 13;"/>
                 </VBox>
 
-                <VBox maxWidth="1100" spacing="20" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
+                <VBox maxWidth="1100" spacing="20" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
                     <children>
-                        <GridPane hgap="20" vgap="12">
+                        <GridPane hgap="20" vgap="15">
                             <columnConstraints>
                                 <ColumnConstraints halignment="RIGHT" percentWidth="12" />
                                 <ColumnConstraints hgrow="ALWAYS" percentWidth="38" />
@@ -26,56 +26,59 @@
                             </columnConstraints>
 
                             <children>
-                                <Label text="Nombre:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                                <TextField fx:id="txtNombre" prefHeight="32" promptText="Nombres y Apellidos"
+                                <Label text="Nombre:" style="-fx-font-weight: bold; -fx-text-fill: #34495e;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <TextField fx:id="txtNombre" prefHeight="35" promptText="Nombres y Apellidos completos"
                                            style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                                <Label text="Cédula:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-                                <TextField fx:id="txtCedula" prefHeight="32" promptText="Identificación"
+                                <Label text="Cédula:" style="-fx-font-weight: bold; -fx-text-fill: #34495e;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                                <TextField fx:id="txtCedula" prefHeight="35" promptText="Número de identificación"
                                            style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
 
-                                <Label text="Username:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.rowIndex="1"/>
-                                <TextField fx:id="txtUsername" prefHeight="32" promptText="Usuario"
+                                <Label text="Username:" style="-fx-font-weight: bold; -fx-text-fill: #34495e;" GridPane.rowIndex="1"/>
+                                <TextField fx:id="txtUsername" prefHeight="35" promptText="Nombre de usuario para login"
                                            style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                                <Label text="Password:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                                <PasswordField fx:id="txtPassword" prefHeight="32" promptText="Contraseña"
+                                <Label text="Password:" style="-fx-font-weight: bold; -fx-text-fill: #34495e;" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                                <PasswordField fx:id="txtPassword" prefHeight="35" promptText="Contraseña segura"
                                                style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
 
-                                <Label text="Rol:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.rowIndex="2"/>
-                                <ComboBox fx:id="cbRol" prefHeight="32" prefWidth="Infinity" promptText="Seleccionar..."
+                                <Label text="Rol:" style="-fx-font-weight: bold; -fx-text-fill: #34495e;" GridPane.rowIndex="2"/>
+                                <ComboBox fx:id="cbRol" prefHeight="35" prefWidth="Infinity" promptText="Seleccionar Rol..."
                                           style="-fx-background-color: white; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-                                <Label text="Estado:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                                <ComboBox fx:id="cbEstado" prefHeight="32" prefWidth="Infinity" promptText="Estado"
+                                <Label text="Estado:" style="-fx-font-weight: bold; -fx-text-fill: #34495e;" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                <ComboBox fx:id="cbEstado" prefHeight="35" prefWidth="Infinity" promptText="Seleccionar Estado..."
                                           style="-fx-background-color: white; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
                             </children>
                         </GridPane>
 
                         <HBox spacing="12" alignment="CENTER_RIGHT">
                             <children>
-                                <Button onAction="#limpiarCampos" prefHeight="35" minWidth="100" text="Limpiar"
-                                        style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-text-fill: #7f8c8d; -fx-font-size: 13; -fx-cursor: hand;"/>
+                                <Button onAction="#limpiarCampos" prefHeight="40" minWidth="100" text="Limpiar"
+                                        style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-text-fill: #7f8c8d; -fx-cursor: hand;"/>
 
-                                <Button onAction="#handleActualizar" prefHeight="35" minWidth="150" text="Actualizar Datos"
-                                        style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 13; -fx-cursor: hand;"/>
+                                <Button onAction="#handleEliminar" prefHeight="40" minWidth="130" text="Eliminar Usuario"
+                                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
 
-                                <Button onAction="#handleGuardar" prefHeight="35" minWidth="150" text="Guardar Nuevo"
-                                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 13; -fx-cursor: hand;"/>
+                                <Button onAction="#handleActualizar" prefHeight="40" minWidth="150" text="Actualizar Datos"
+                                        style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+
+                                <Button onAction="#handleGuardar" prefHeight="40" minWidth="150" text="Guardar Nuevo"
+                                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
                             </children>
                         </HBox>
                     </children>
                 </VBox>
 
-                <VBox VBox.vgrow="ALWAYS" minHeight="300" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
+                <VBox VBox.vgrow="ALWAYS" minHeight="400" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
                     <children>
                         <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
                             <columns>
-                                <TableColumn fx:id="colNombre" text="Nombre Completo" />
-                                <TableColumn fx:id="colCedula" text="Cédula" maxWidth="150" minWidth="100" style="-fx-alignment: CENTER;" />
-                                <TableColumn fx:id="colUsername" text="Usuario" maxWidth="150" minWidth="100" style="-fx-alignment: CENTER;" />
-                                <TableColumn fx:id="colRol" text="Rol" maxWidth="150" minWidth="100" style="-fx-alignment: CENTER;" />
-                                <TableColumn fx:id="colEstado" text="Estado" maxWidth="120" minWidth="80" style="-fx-alignment: CENTER;" />
+                                <TableColumn fx:id="colNombre" text="Nombre Completo" prefWidth="250" />
+                                <TableColumn fx:id="colCedula" text="Cédula" maxWidth="150" minWidth="120" style="-fx-alignment: CENTER;" />
+                                <TableColumn fx:id="colUsername" text="Usuario" maxWidth="150" minWidth="120" style="-fx-alignment: CENTER;" />
+                                <TableColumn fx:id="colRol" text="Rol" maxWidth="150" minWidth="120" style="-fx-alignment: CENTER;" />
+                                <TableColumn fx:id="colEstado" text="Estado" maxWidth="120" minWidth="100" style="-fx-alignment: CENTER;" />
                             </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
