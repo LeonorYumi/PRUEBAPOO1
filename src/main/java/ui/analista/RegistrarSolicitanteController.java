@@ -37,17 +37,6 @@ public class RegistrarSolicitanteController extends BaseController {
 
     @FXML private void handleLimpiar() { limpiarCampos(); }
 
-    // NUEVO: Método para cumplir con el requerimiento del botón Regresar
-    @FXML
-    private void handleRegresar() {
-        // Si es un StackPane (contenido dinámico), simplemente limpiamos el área
-        // o cargamos la vista de bienvenida.
-        // Si el AdminController maneja la navegación, este botón puede estar vacío
-        // o redirigir al Dashboard.
-        limpiarCampos();
-        mostrarAlerta("Información", "Regresando al panel principal...", Alert.AlertType.INFORMATION);
-    }
-
     @FXML
     private void handleGuardar() {
         // Validación de campos vacíos

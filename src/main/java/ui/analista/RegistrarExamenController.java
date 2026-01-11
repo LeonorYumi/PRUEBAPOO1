@@ -120,17 +120,4 @@ public class RegistrarExamenController extends BaseController {
         }
     }
 
-    @FXML
-    private void handleRegresar() {
-        try {
-            // Ajusta la ruta a tu vista de bienvenida analista
-            String ruta = "/ui/analista/BienvenidaAnalistaView.fxml";
-            Parent root = FXMLLoader.load(getClass().getResource(ruta));
-            Stage stage = (Stage) txtBusquedaId.getScene().getWindow();
-            stage.setScene(new Scene(root));
-        } catch (Exception e) {
-            // Si falla la carga del FXML (por si estás usando un StackPane principal)
-            System.err.println("Error al navegar: " + e.getMessage());
-        }
-    }
 }

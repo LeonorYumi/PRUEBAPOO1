@@ -144,10 +144,4 @@ public class VerificarRequisitoController extends BaseController {
             mostrarAlerta("Error de Guardado", "No se pudo actualizar el trámite: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-
-    @FXML
-    private void handleRegresar() {
-        limpiarCampos();
-        // Lógica opcional para cerrar ventana o cambiar de panel
-    }
 }

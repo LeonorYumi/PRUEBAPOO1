@@ -63,9 +63,6 @@
 
                 <HBox spacing="15" alignment="CENTER_RIGHT">
                     <children>
-                        <Button onAction="#handleRegresar" prefHeight="40" prefWidth="120" text="⬅ Regresar"
-                                style="-fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-cursor: hand;"/>
-
                         <Button onAction="#handleRechazar" prefHeight="40" prefWidth="130" text="❌ Rechazar"
                                 style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
 

@@ -65,9 +65,6 @@
 
                 <HBox spacing="15" alignment="CENTER_RIGHT">
                     <children>
-                        <Button onAction="#handleRegresar" prefHeight="40" prefWidth="120" text="Regresar"
-                                style="-fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-cursor: hand;"/>
-
                         <Button onAction="#handleGuardarResultados" prefHeight="45" prefWidth="220" text="💾 Guardar y Finalizar"
                                 style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(41, 128, 185, 0.2), 10, 0, 0, 3);"/>
                     </children>

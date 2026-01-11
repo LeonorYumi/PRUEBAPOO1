@@ -66,9 +66,6 @@
                     <Button text="Limpiar" onAction="#handleLimpiar" prefHeight="40" prefWidth="110"
                             style="-fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-cursor: hand;"/>
 
-                    <Button text="⬅ Regresar" onAction="#handleRegresar" prefHeight="40" prefWidth="120"
-                            style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
-
                     <Button text="💾 Guardar Solicitante" onAction="#handleGuardar" prefHeight="40" prefWidth="200"
                             style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.2), 10, 0, 0, 3);"/>
                 </children>
