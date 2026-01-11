@@ -73,7 +73,7 @@
         </VBox>
 
         <HBox alignment="CENTER" spacing="10" style="-fx-padding: 10;">
-            <Label text="Nota mínima para aprobar: 16.00/20.00"
+            <Label text="Nota mínima para aprobar: 14.00/20.00"
                    style="-fx-text-fill: #e67e22; -fx-font-size: 12; -fx-font-style: italic; -fx-font-weight: bold;"/>
         </HBox>
     </VBox>
