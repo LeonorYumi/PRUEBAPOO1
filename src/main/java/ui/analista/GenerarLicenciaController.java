@@ -7,12 +7,15 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import model.Tramite;
+import service.TramiteService;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 
 public class GenerarLicenciaController {
 
@@ -24,31 +27,71 @@ public class GenerarLicenciaController {
     // Formato de fecha para Ecuador (día/mes/año)
     private final DateTimeFormatter formatoEcuador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    /**
-     * Este método recibe los datos de la pantalla anterior.
-     * Es 'public' para que DetalleTramiteController pueda enviarle el objeto 'tramite'.
-     */
-    public void initData(Tramite tramite) {
-        if (tramite != null) {
-            // Pasamos los datos del objeto a las etiquetas (Labels)
-            lblNombreConductor.setText(tramite.getNombre().toUpperCase());
-            lblNumeroLicencia.setText(tramite.getCedula());
-            lblTipoLicencia.setText("TIPO " + tramite.getTipoLicencia());
+    // Servicio para buscar trámites reales
+    private final TramiteService tramiteService = new TramiteService();
 
-            // Calculamos fechas: Hoy (2026) y en 5 años (2031)
-            LocalDate hoy = LocalDate.now();
-            lblFechaEmision.setText(hoy.format(formatoEcuador));
-            lblFechaVencimiento.setText(hoy.plusYears(5).format(formatoEcuador));
+    // Mantenemos el tramite cargado para usar sus datos en PDF y mostrar
+    private Tramite tramiteActivo;
 
-            // Activamos el botón para poder guardar el PDF
-            btnExportar.setDisable(false);
-        }
+    public GenerarLicenciaController() {
+        // Constructor vacío
+    }
+
+    @FXML
+    private void initialize() {
+        System.out.println("GenerarLicenciaController initialized. txtBusquedaRapida = " + (txtBusquedaRapida != null));
+        if (btnExportar != null) btnExportar.setDisable(true);
+        if (btnGenerar != null) btnGenerar.setDisable(true);
     }
 
     /**
-     * Método para el botón 'Generar'.
-     * Soluciona el error de carga de la imagen
+     * Recibe el trámite seleccionado desde la pantalla anterior.
      */
+    public void initData(Tramite tramite) {
+        this.tramiteActivo = tramite;
+        if (tramite != null) {
+            // Nombre y cédula tal como vienen del trámite
+            lblNombreConductor.setText(tramite.getNombre() != null ? tramite.getNombre().toUpperCase() : "---");
+            lblNumeroLicencia.setText(tramite.getCedula() != null ? tramite.getCedula() : "---");
+            lblTipoLicencia.setText("TIPO " + (tramite.getTipoLicencia() != null ? tramite.getTipoLicencia() : "-"));
+
+            // Usamos la fecha que está en el trámite si existe
+            LocalDate fechaEmisionLD;
+            String fechaTramite = tramite.getFecha(); // es String en el modelo
+            if (fechaTramite != null && !fechaTramite.isBlank()) {
+                try {
+                    // Intentamos parsear ISO (yyyy-MM-dd)
+                    fechaEmisionLD = LocalDate.parse(fechaTramite);
+                    lblFechaEmision.setText(fechaEmisionLD.format(formatoEcuador));
+                } catch (DateTimeParseException ex) {
+                    // Si no es ISO, mostramos el string tal cual y tomamos hoy como fallback para vencimiento
+                    lblFechaEmision.setText(fechaTramite);
+                    fechaEmisionLD = LocalDate.now();
+                }
+            } else {
+                // Si no hay fecha en el trámite, caemos a hoy (pero ideal: guardar la fecha en BD correctamente)
+                fechaEmisionLD = LocalDate.now();
+                lblFechaEmision.setText(fechaEmisionLD.format(formatoEcuador));
+            }
+
+            // Vencimiento = emisión + 5 años
+            lblFechaVencimiento.setText(fechaEmisionLD.plusYears(5).format(formatoEcuador));
+
+            // Activamos el botón de exportar y, si aplica, habilitamos generar
+            btnExportar.setDisable(false);
+            btnGenerar.setDisable(!"aprobado".equalsIgnoreCase(tramite.getEstado()));
+        } else {
+            // No hay tramite: limpiamos
+            lblNombreConductor.setText("---");
+            lblNumeroLicencia.setText("---");
+            lblTipoLicencia.setText("TIPO -");
+            lblFechaEmision.setText("--");
+            lblFechaVencimiento.setText("--");
+            btnExportar.setDisable(true);
+            btnGenerar.setDisable(true);
+        }
+    }
+
     @FXML
     private void handleGenerar() {
         btnExportar.setDisable(false);
@@ -59,54 +102,69 @@ public class GenerarLicenciaController {
         msj.showAndWait();
     }
 
-    /**
-     * Método para el botón 'Regresar'.
-     * Soluciona el error de carga de la imagen
-     */
     @FXML
     private void handleRegresar() {
         try {
-            // Cargamos la vista de Detalle
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DetalleTramiteView.fxml"));
             Parent vistaAnterior = loader.load();
 
-            // Reemplazamos el contenido en el panel principal
             StackPane contentArea = (StackPane) btnExportar.getScene().lookup("#contentArea");
             if (contentArea != null) {
                 contentArea.getChildren().setAll(vistaAnterior);
             }
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.println("No se pudo volver: " + e.getMessage());
         }
     }
 
     /**
-     * Método para búsqueda rápida (Simulación).
-     * Soluciona el error de la imagen
+     * Búsqueda rápida: ahora consulta el servicio para traer datos reales y llama initData(tramite).
      */
     @FXML
     private void handleBuscarRapido() {
-        if (!txtBusquedaRapida.getText().isEmpty()) {
-            lblNombreConductor.setText("CAMILA BUENO");
-            lblNumeroLicencia.setText(txtBusquedaRapida.getText());
-            lblTipoLicencia.setText("TIPO A");
+        try {
+            if (txtBusquedaRapida == null) {
+                throw new IllegalStateException("Control txtBusquedaRapida no inyectado. Revisa fx:id y fx:controller.");
+            }
 
-            LocalDate hoy = LocalDate.now();
-            lblFechaEmision.setText(hoy.format(formatoEcuador));
-            lblFechaVencimiento.setText(hoy.plusYears(5).format(formatoEcuador));
-            btnExportar.setDisable(false);
+            String cedula = txtBusquedaRapida.getText().trim();
+            if (cedula.isEmpty()) {
+                mostrarAlerta("Campo vacío", "Ingrese una cédula para buscar.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            if (!cedula.matches("\\d{10}")) {
+                mostrarAlerta("Formato incorrecto", "La cédula debe tener 10 dígitos.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Llamamos al servicio para buscar el trámite REAL por cédula
+            List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
+            if (resultados != null && !resultados.isEmpty()) {
+                Tramite encontrado = resultados.get(0);
+                // Cargamos los datos reales en la vista
+                initData(encontrado);
+            } else {
+                mostrarAlerta("No encontrado", "No se encontró ningún trámite con la cédula indicada.", Alert.AlertType.INFORMATION);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error búsqueda", "Ocurrió un error al buscar: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     /**
-     * EXPORTAR PDF: Dibuja la tarjeta con el cuadro de la foto.
+     * EXPORTAR PDF: restaurado al método que tenía antes (escribe PDF con PrintWriter).
+     * Usa los textos actuales de las Labels para generar el archivo.
      */
     @FXML
     private void handleExportarPDF() {
-        // Obtenemos los textos de los Labels
-        String cedula = lblNumeroLicencia.getText();
-        String nombre = lblNombreConductor.getText();
-        String tipo = lblTipoLicencia.getText();
+        // Si hay un tramiteActivo, preferimos sus datos
+        String cedula = (tramiteActivo != null && tramiteActivo.getCedula() != null) ? tramiteActivo.getCedula() : lblNumeroLicencia.getText();
+        String nombre = (tramiteActivo != null && tramiteActivo.getNombre() != null) ? tramiteActivo.getNombre() : lblNombreConductor.getText();
+        String tipo = (tramiteActivo != null && tramiteActivo.getTipoLicencia() != null) ? tramiteActivo.getTipoLicencia() : lblTipoLicencia.getText();
         String fEmision = lblFechaEmision.getText();
         String fVence = lblFechaVencimiento.getText();
 
@@ -117,13 +175,11 @@ public class GenerarLicenciaController {
 
         if (destino != null) {
             try (PrintWriter pw = new PrintWriter(destino)) {
-                // Comienzo del archivo PDF
+                // Comienzo del archivo PDF (estructura mínima)
                 pw.println("%PDF-1.4");
                 pw.println("1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj");
                 pw.println("2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj");
                 pw.println("3 0 obj << /Type /Page /Parent 2 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Courier >> >> >> /MediaBox [0 0 612 792] /Contents 4 0 R >> endobj");
-
-                // Contenido del dibujo y texto
                 pw.println("4 0 obj << /Length 1500 >> stream");
                 pw.println("BT");
 
@@ -151,7 +207,7 @@ public class GenerarLicenciaController {
                 pw.println("endstream");
                 pw.println("endobj");
 
-                // Cierre del PDF
+                // Cierre del PDF (tarea mínima)
                 pw.println("xref");
                 pw.println("0 5");
                 pw.println("0000000000 65535 f");
@@ -159,14 +215,26 @@ public class GenerarLicenciaController {
                 pw.println("%%EOF");
 
                 pw.flush();
-                pw.close();
 
-                // Abrimos el PDF automáticamente
-                Desktop.getDesktop().open(destino);
-
+                // Intentamos abrirlo
+                try {
+                    Desktop.getDesktop().open(destino);
+                } catch (UnsupportedOperationException | IOException ex) {
+                    mostrarAlerta("Hecho", "PDF guardado en: " + destino.getAbsolutePath(), Alert.AlertType.INFORMATION);
+                }
             } catch (Exception e) {
-                System.out.println("Error al crear el PDF: " + e.getMessage());
+                e.printStackTrace();
+                mostrarAlerta("Error al crear el PDF", e.getMessage(), Alert.AlertType.ERROR);
             }
         }
+    }
+
+    // Método auxiliar para mostrar alertas
+    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert a = new Alert(tipo);
+        a.setTitle(titulo);
+        a.setHeaderText(null);
+        a.setContentText(mensaje);
+        a.showAndWait();
     }
 }

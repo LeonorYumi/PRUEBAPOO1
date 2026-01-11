@@ -10,7 +10,7 @@ public class Tramite {
     private String estado;
     private int createdBy;
 
-    // 🚩 LO QUE FALTA PARA EL DETALLE (REQUERIMIENTO 4.5)
+
     private double notaTeorica;
     private double notaPractica;
     private boolean fotos;
