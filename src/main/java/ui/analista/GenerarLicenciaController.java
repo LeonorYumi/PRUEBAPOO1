@@ -196,7 +196,7 @@ public class GenerarLicenciaController {
                 pw.println("0 -20 Td (LICENCIA NACIONAL DE CONDUCIR) Tj");
 
                 pw.println("/F1 10 Tf");
-                pw.println("0 -40 Td (TIPO: " + tipo + ") Tj");
+                pw.println("0 -40 Td (" +  ") Tj");
                 pw.println("0 -20 Td (CEDULA: " + cedula + ") Tj");
                 pw.println("0 -20 Td (NOMBRE: " + nombre + ") Tj");
 

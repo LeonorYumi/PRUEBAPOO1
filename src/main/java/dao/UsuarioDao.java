@@ -8,10 +8,11 @@ import java.util.List;
 public class UsuarioDao {
 
     public Usuario findByLogin(String user, String pass) {
-        String sql = "SELECT u.id, u.nombre, u.username, r.nombre AS rol_nombre " +
+        // Ya no filtramos por activo en la consulta: queremos saber si existe y su estado
+        String sql = "SELECT u.id, u.nombre, u.username, r.nombre AS rol_nombre, u.activo " +
                 "FROM usuarios u " +
                 "JOIN roles r ON r.id = u.rol_id " +
-                "WHERE u.username = ? AND u.password_hash = SHA2(?, 256) AND u.activo = TRUE";
+                "WHERE u.username = ? AND u.password_hash = SHA2(?, 256)";
         try (Connection cn = Conexion.getConexion();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             if (cn == null) return null;
@@ -24,6 +25,8 @@ public class UsuarioDao {
                     u.setNombre(rs.getString("nombre"));
                     u.setUsername(rs.getString("username"));
                     u.setRol(rs.getString("rol_nombre"));
+                    // establecer el flag activo según la columna de la BD
+                    u.setActivo(rs.getBoolean("activo"));
                     return u;
                 }
             }

@@ -1,5 +1,7 @@
 package ui.login;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -34,47 +36,77 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        // Limpiamos y cargamos los roles exactos del script SQL
+        // Cargar exactamente las etiquetas que tienes en el FXML
         comboUsuario.getItems().clear();
-        comboUsuario.getItems().addAll("ADMIN", "ANALISTA");
+        comboUsuario.getItems().addAll("Administrador", "Analista");
     }
 
     @FXML
-    private void handleLogin() {
+    private void handleLogin(ActionEvent event) {
         String usuarioStr = txtUsuario.getText().trim();
         String passwordStr = txtPassword.getText().trim();
-        String rolSeleccionado = comboUsuario.getValue();
+        String rolSeleccionadoLabel = comboUsuario.getValue();
 
         // 1. Validación de campos vacíos
-        if (usuarioStr.isEmpty() || passwordStr.isEmpty() || rolSeleccionado == null) {
+        if (usuarioStr.isEmpty() || passwordStr.isEmpty() || rolSeleccionadoLabel == null) {
             mostrarError("Por favor, complete todos los campos y seleccione su rol.");
             return;
         }
 
-
         try {
-            // Llamada al servicio que usa SHA2 en el DAO
+            // Llamada al servicio
             Usuario u = usuarioService.iniciarSesion(usuarioStr, passwordStr);
 
-            // 2. Validación de credenciales y rol (Regla de negocio 2 y 6.5)
-            if (u == null || !u.getRol().equalsIgnoreCase(rolSeleccionado)) {
+            if (u == null) {
+                // Credenciales incorrectas
                 intentos++;
                 if (intentos >= 3) {
                     mostrarError("Has superado el límite de 3 intentos. El sistema se cerrará.");
-                    System.exit(0);
+                    Platform.exit();
+                } else {
+                    mostrarError("Credenciales incorrectas.\nIntento " + intentos + " de 3.");
                 }
-                mostrarError("Credenciales o rol incorrectos.\nIntento " + intentos + " de 3.");
                 return;
             }
 
-            // 3. Login exitoso: Redirección según rol
-            intentos = 0;
+            // Verificar si el usuario está activo
+            if (!u.isActivo()) {
+                mostrarError("Usuario inactivo. Contacte al administrador.");
+                return;
+            }
 
-            // Comparamos con los valores que vienen del JOIN en la BD (ADMIN/ANALISTA)
+            // Normalizar la selección del combo a los códigos del rol en BD
+            String rolSeleccionado;
+            if ("Administrador".equalsIgnoreCase(rolSeleccionadoLabel)) {
+                rolSeleccionado = "ADMIN";
+            } else if ("Analista".equalsIgnoreCase(rolSeleccionadoLabel)) {
+                rolSeleccionado = "ANALISTA";
+            } else {
+                // Fallback por seguridad
+                rolSeleccionado = rolSeleccionadoLabel.toUpperCase();
+            }
+
+            // Validación de rol
+            if (!u.getRol().equalsIgnoreCase(rolSeleccionado)) {
+                intentos++;
+                if (intentos >= 3) {
+                    mostrarError("Has superado el límite de 3 intentos. El sistema se cerrará.");
+                    Platform.exit();
+                } else {
+                    mostrarError("Credenciales o rol incorrectos.\nIntento " + intentos + " de 3.");
+                }
+                return;
+            }
+
+            // Login exitoso: Redirección según rol
+            intentos = 0;
             if (u.getRol().equalsIgnoreCase("ADMIN")) {
                 cargarVentana("/fxml/MenuAdminView.fxml", "Sistema de Licencias - Administrador");
             } else if (u.getRol().equalsIgnoreCase("ANALISTA")) {
                 cargarVentana("/fxml/MenuAnalistaView.fxml", "Sistema de Licencias - Analista");
+            } else {
+                // Por si hubiera otros roles
+                mostrarError("Rol no soportado: " + u.getRol());
             }
 
         } catch (Exception e) {
@@ -83,41 +115,36 @@ public class LoginController {
         }
     }
 
+    // Manejador para el botón SALIR (referenciado por onAction="#handleExit")
+    @FXML
+    private void handleExit(ActionEvent event) {
+        Platform.exit();
+    }
+
     private void cargarVentana(String ruta, String titulo) {
         try {
-            // Cargamos el recurso usando la ruta absoluta dentro de resources
             FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Parent root = loader.load();
 
-            // Configuramos la nueva escena
             Stage stage = new Stage();
             stage.setTitle(titulo);
             stage.setScene(new Scene(root));
-
-            // Centrar ventana (opcional)
             stage.show();
 
-            // Cerramos la ventana de Login actual
             Stage actual = (Stage) btnLogin.getScene().getWindow();
             actual.close();
 
         } catch (Exception e) {
-            System.err.println("Error cargando FXML: " + ruta);
             e.printStackTrace();
-            mostrarError("No se pudo cargar la vista del menú. Verifique la consola.");
+            mostrarError("No se pudo abrir la ventana: " + e.getMessage());
         }
     }
 
-    private void mostrarError(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error de Acceso");
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
-    }
-    @FXML
-    private void handleExit() {
-        // Esto cierra la aplicación por completo
-        System.exit(0);
+    private void mostrarError(String msg) {
+        Alert a = new Alert(Alert.AlertType.ERROR);
+        a.setTitle("Error");
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
     }
 }
