@@ -69,7 +69,7 @@
                     </children>
                 </VBox>
 
-                <VBox VBox.vgrow="ALWAYS" minHeight="500" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
+                <VBox VBox.vgrow="ALWAYS" minHeight="550" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
                     <children>
                         <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
                             <tabs>
@@ -93,9 +93,20 @@
                                         </TableView>
                                     </VBox>
                                 </Tab>
+
                                 <Tab text="   Análisis Visual   ">
-                                    <VBox alignment="CENTER" spacing="10" style="-fx-padding: 30;">
-                                        <PieChart fx:id="chartEstados" title="Trámites por Estado" legendSide="RIGHT" VBox.vgrow="ALWAYS" />
+                                    <VBox alignment="CENTER" spacing="15" style="-fx-padding: 40;">
+                                        <children>
+                                            <PieChart fx:id="chartEstados"
+                                                      title="Distribución por Estado de Trámite"
+                                                      legendSide="RIGHT"
+                                                      VBox.vgrow="ALWAYS"
+                                                      labelsVisible="true">
+                                                <padding>
+                                                    <Insets top="10" right="60" bottom="10" left="60" />
+                                                </padding>
+                                            </PieChart>
+                                        </children>
                                     </VBox>
                                 </Tab>
                             </tabs>

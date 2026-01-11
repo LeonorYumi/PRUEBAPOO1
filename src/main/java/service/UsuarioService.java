@@ -23,8 +23,14 @@ public class UsuarioService {
         return usuarioDao.findAll();
     }
 
-    // Único método necesario para actualizar datos y estado (activo/inactivo)
     public void actualizarUsuario(Usuario u) throws Exception {
         usuarioDao.update(u);
+    }
+
+    public void eliminarUsuario(String cedula) throws Exception {
+        if (cedula == null || cedula.trim().isEmpty()) {
+            throw new Exception("No se puede eliminar: La cédula del usuario es inválida.");
+        }
+        usuarioDao.delete(cedula);
     }
 }

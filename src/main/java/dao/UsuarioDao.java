@@ -71,13 +71,8 @@ public class UsuarioDao {
         return lista;
     }
 
-    /**
-     * ACTUALIZAR: Este método centraliza la edición de datos y el cambio de estado.
-     */
     public void update(Usuario u) throws SQLException {
         int rolId = u.getRol().equalsIgnoreCase("admin") ? 1 : 2;
-
-        // Verificamos si se proporcionó una nueva contraseña
         boolean actualizaPass = u.getPassword() != null && !u.getPassword().trim().isEmpty();
 
         String sql = actualizaPass
@@ -91,7 +86,7 @@ public class UsuarioDao {
             ps.setString(2, u.getCedula());
             ps.setString(3, u.getUsername());
             ps.setInt(4, rolId);
-            ps.setBoolean(5, u.isActivo()); // Aquí se guarda el estado activo/inactivo
+            ps.setBoolean(5, u.isActivo());
 
             if (actualizaPass) {
                 ps.setString(6, u.getPassword());
@@ -99,8 +94,25 @@ public class UsuarioDao {
             } else {
                 ps.setInt(6, u.getId());
             }
-
             ps.executeUpdate();
+        }
+    }
+
+    /**
+     * ELIMINAR: Borra físicamente un registro basado en la cédula.
+     */
+    public void delete(String cedula) throws SQLException {
+        String sql = "DELETE FROM usuarios WHERE cedula = ?";
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setString(1, cedula);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new SQLException("No se encontró ningún usuario con la cédula proporcionada.");
+            }
         }
     }
 }
