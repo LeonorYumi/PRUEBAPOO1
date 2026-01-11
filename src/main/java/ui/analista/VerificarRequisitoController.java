@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Controlador para la validación de documentos y requisitos.
- * Adaptado para funcionar con RequisitoService sin modificar su firma.
+ * Diferencia entre trámites no encontrados y trámites ya procedentes.
  */
 public class VerificarRequisitoController extends BaseController {
 
@@ -37,41 +37,68 @@ public class VerificarRequisitoController extends BaseController {
     @FXML
     private void handleBuscar() {
         try {
+            // Reset de estado previo
             tramiteEncontrado = null;
             lblNombreCliente.setText("");
             String cedula = txtBusquedaId.getText().trim();
 
+            // 1. Validación de formato de entrada
             if (cedula.length() != 10 || !cedula.matches("[0-9]+")) {
-                mostrarAlerta("Error", "Ingrese 10 dígitos numéricos.", Alert.AlertType.WARNING);
+                mostrarAlerta("Error de Formato", "Ingrese los 10 dígitos numéricos de la cédula.", Alert.AlertType.WARNING);
                 return;
             }
 
-            // Buscamos trámites que estén en estado 'pendiente'
-            List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "pendiente", "Todos", cedula);
+            // 2. PRIMERA BÚSQUEDA: Trámites en estado 'pendiente' (Listos para validar)
+            List<Tramite> pendientes = tramiteService.consultarTramitesReporte(null, null, "pendiente", "Todos", cedula);
 
-            if (resultados != null && !resultados.isEmpty()) {
-                tramiteEncontrado = resultados.get(0);
+            if (pendientes != null && !pendientes.isEmpty()) {
+                // CASO EXITOSO: Trámite listo para procesar
+                tramiteEncontrado = pendientes.get(0);
                 lblNombreCliente.setText("Solicitante: " + tramiteEncontrado.getNombre());
-                lblNombreCliente.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold;");
+                lblNombreCliente.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold; -fx-font-size: 14;");
             } else {
-                lblNombreCliente.setText("TRÁMITE NO ENCONTRADO O YA PROCESADO");
-                lblNombreCliente.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                // 3. SEGUNDA BÚSQUEDA: Si no hay pendientes, ver si la cédula existe en CUALQUIER otro estado
+                List<Tramite> historial = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
+
+                if (historial != null && !historial.isEmpty()) {
+                    // CASO: El trámite ya pasó esta fase (Ya es PROCEDENTE o RECHAZADO)
+                    Tramite actual = historial.get(0);
+                    String estadoActual = actual.getEstado().toUpperCase();
+
+                    lblNombreCliente.setText("TRÁMITE YA PROCEDENTE (ESTADO: " + estadoActual + ")");
+                    lblNombreCliente.setStyle("-fx-text-fill: #2980b9; -fx-font-weight: bold; -fx-font-size: 14;");
+
+                    mostrarAlerta("Trámite Procesado",
+                            "El solicitante " + actual.getNombre() + " ya registra un trámite en estado: " + estadoActual,
+                            Alert.AlertType.INFORMATION);
+                } else {
+                    // CASO: La cédula no existe en la base de datos
+                    lblNombreCliente.setText("TRÁMITE NO ENCONTRADO EN EL SISTEMA");
+                    lblNombreCliente.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 14;");
+
+                    mostrarAlerta("No Encontrado",
+                            "No se encontró ningún registro para la cédula: " + cedula + ".\nVerifique que el solicitante haya sido registrado previamente.",
+                            Alert.AlertType.ERROR);
+                }
+
+                // Limpiamos variables internas pero dejamos el mensaje en lblNombreCliente visible
+                tramiteEncontrado = null;
             }
         } catch (Exception e) {
-            mostrarAlerta("Error", "Error al buscar: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta("Error", "Ocurrió un error al consultar: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void handleAprobar() {
         if (tramiteEncontrado == null) {
-            mostrarAlerta("Atención", "Busque un solicitante primero.", Alert.AlertType.WARNING);
+            mostrarAlerta("Atención", "Debe buscar y seleccionar un trámite pendiente primero.", Alert.AlertType.WARNING);
             return;
         }
 
-        // REGLA: Para aprobar manualmente, los 3 checks DEBEN estar marcados en la UI
+        // Validación física de requisitos en la UI
         if (!chkCertificado.isSelected() || !chkPago.isSelected() || !chkSinMultas.isSelected()) {
-            mostrarAlerta("Incompleto", "No se puede aprobar si faltan requisitos físicos.", Alert.AlertType.WARNING);
+            mostrarAlerta("Requisitos Incompletos", "No se puede aprobar si no se verifican todos los documentos físicos.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -80,47 +107,47 @@ public class VerificarRequisitoController extends BaseController {
 
     @FXML
     private void handleRechazar() {
-        if (tramiteEncontrado == null) return;
-
-        if (txtObservaciones.getText().trim().isEmpty()) {
-            mostrarAlerta("Atención", "Debe ingresar una observación para el rechazo.", Alert.AlertType.WARNING);
+        if (tramiteEncontrado == null) {
+            mostrarAlerta("Atención", "Busque un trámite antes de intentar rechazarlo.", Alert.AlertType.WARNING);
             return;
         }
 
-        // Al llamar a procesar con algún checkbox desmarcado,
-        // la lógica interna del Service pondrá el estado "rechazado".
+        if (txtObservaciones.getText().trim().isEmpty()) {
+            mostrarAlerta("Observación Requerida", "Debe ingresar el motivo del rechazo en el campo de observaciones.", Alert.AlertType.WARNING);
+            return;
+        }
+
         procesarTramiteAdaptado();
     }
 
     /**
-     * Lógica que conecta con el Service respetando los tipos de datos originales.
+     * Lógica que conecta con el RequisitoService.
      */
     private void procesarTramiteAdaptado() {
         try {
-            // Invertimos el valor de chkSinMultas para que el Service (que usa !multas)
-            // funcione correctamente con el texto de nuestra interfaz.
-            boolean valorParaService = !chkSinMultas.isSelected();
+            // El Service usa !multas para determinar procedencia
+            boolean sinMultasParaService = !chkSinMultas.isSelected();
 
             requisitoService.guardarRequisitos(
                     tramiteEncontrado.getId(),
                     chkCertificado.isSelected(),
                     chkPago.isSelected(),
-                    valorParaService,
+                    sinMultasParaService,
                     txtObservaciones.getText(),
-                    null // Se envía null para el parámetro 'creadoPor' (Integer)
+                    null // creadoPor
             );
 
-            mostrarAlerta("Éxito", "Proceso completado. El estado del trámite se ha actualizado.", Alert.AlertType.INFORMATION);
+            mostrarAlerta("Éxito", "Gestión finalizada. El trámite ha sido actualizado correctamente.", Alert.AlertType.INFORMATION);
             limpiarCampos();
 
         } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo guardar: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta("Error de Guardado", "No se pudo actualizar el trámite: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void handleRegresar() {
         limpiarCampos();
-        // Aquí puedes añadir la lógica para volver al panel de bienvenida si lo deseas
+        // Lógica opcional para cerrar ventana o cambiar de panel
     }
 }

@@ -57,13 +57,11 @@ public class GestionTramiteController extends BaseController {
 
     private void agregarBotonesAccion() {
         colAcciones.setCellFactory(param -> new TableCell<>() {
-            // Se cambian los botones para que tengan el texto solicitado
             private final Button btnValidar = new Button("Req OK");
             private final Button btnExamen = new Button("Registrar Examen");
             private final HBox container = new HBox(8, btnValidar, btnExamen);
 
             {
-                // Estilos para que se vean como botones de acción claros
                 btnValidar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;");
                 btnExamen.setStyle("-fx-background-color: #2980b9; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;");
 
@@ -89,7 +87,6 @@ public class GestionTramiteController extends BaseController {
                     Tramite t = getTableView().getItems().get(getIndex());
                     String estado = t.getEstado().toLowerCase();
 
-                    // Lógica de visibilidad según el requerimiento
                     btnValidar.setVisible("pendiente".equalsIgnoreCase(estado));
                     btnExamen.setVisible("en_examenes".equalsIgnoreCase(estado));
 
@@ -151,8 +148,8 @@ public class GestionTramiteController extends BaseController {
                     return;
                 }
 
-                // Aprobación según regla 14/20
-                String resultado = (notas[0] >= 14 && notas[1] >= 14) ? "aprobado" : "reprobado";
+                // CAMBIO: Se usa "rechazado" en lugar de "reprobado" para mantener consistencia
+                String resultado = (notas[0] >= 14 && notas[1] >= 14) ? "aprobado" : "rechazado";
                 tramiteService.registrarNotas(t.getId(), notas[0], notas[1], resultado);
                 cargarDatosReales();
                 mostrarAlerta("Registro Completo", "Estado final: " + resultado.toUpperCase(), Alert.AlertType.INFORMATION);
@@ -188,6 +185,17 @@ public class GestionTramiteController extends BaseController {
         }
     }
 
+    private void configurarFiltros() {
+        if (comboFiltroEstado != null) {
+            // CAMBIO: Se reemplaza "reprobado" por "rechazado" en las opciones del ComboBox
+            comboFiltroEstado.setItems(FXCollections.observableArrayList(
+                    "Todos", "pendiente", "en_examenes", "aprobado", "rechazado", "licencia_emitida"
+            ));
+            comboFiltroEstado.setValue("Todos");
+        }
+    }
+
+    // Los métodos handleGenerarLicencia, handleVerDetalle y handleRegresar se mantienen igual...
     @FXML
     private void handleGenerarLicencia() {
         Tramite seleccionado = tablaTramites.getSelectionModel().getSelectedItem();
@@ -213,15 +221,6 @@ public class GestionTramiteController extends BaseController {
             }
         } else {
             mostrarAlerta("Denegado", "Solo trámites aprobados pueden generar licencia.", Alert.AlertType.ERROR);
-        }
-    }
-
-    private void configurarFiltros() {
-        if (comboFiltroEstado != null) {
-            comboFiltroEstado.setItems(FXCollections.observableArrayList(
-                    "Todos", "pendiente", "en_examenes", "aprobado", "reprobado", "licencia_emitida"
-            ));
-            comboFiltroEstado.setValue("Todos");
         }
     }
 

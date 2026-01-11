@@ -53,7 +53,9 @@ public class GenerarLicenciaController {
             // Nombre y cédula tal como vienen del trámite
             lblNombreConductor.setText(tramite.getNombre() != null ? tramite.getNombre().toUpperCase() : "---");
             lblNumeroLicencia.setText(tramite.getCedula() != null ? tramite.getCedula() : "---");
-            lblTipoLicencia.setText("TIPO " + (tramite.getTipoLicencia() != null ? tramite.getTipoLicencia() : "-"));
+
+            // CORRECCIÓN: Se quita la palabra "TIPO " manual para que no se duplique con el FXML
+            lblTipoLicencia.setText(tramite.getTipoLicencia() != null ? tramite.getTipoLicencia() : "-");
 
             // Usamos la fecha que está en el trámite si existe
             LocalDate fechaEmisionLD;
@@ -84,7 +86,10 @@ public class GenerarLicenciaController {
             // No hay tramite: limpiamos
             lblNombreConductor.setText("---");
             lblNumeroLicencia.setText("---");
-            lblTipoLicencia.setText("TIPO -");
+
+            // CORRECCIÓN: Se quita "TIPO " manual aquí también
+            lblTipoLicencia.setText("-");
+
             lblFechaEmision.setText("--");
             lblFechaVencimiento.setText("--");
             btnExportar.setDisable(true);
@@ -164,18 +169,19 @@ public class GenerarLicenciaController {
         // Si hay un tramiteActivo, preferimos sus datos
         String cedula = (tramiteActivo != null && tramiteActivo.getCedula() != null) ? tramiteActivo.getCedula() : lblNumeroLicencia.getText();
         String nombre = (tramiteActivo != null && tramiteActivo.getNombre() != null) ? tramiteActivo.getNombre() : lblNombreConductor.getText();
-        String tipo = (tramiteActivo != null && tramiteActivo.getTipoLicencia() != null) ? tramiteActivo.getTipoLicencia() : lblTipoLicencia.getText();
+
+        // Obtenemos el valor del label (que ahora solo tiene "Tipo B")
+        String tipoValor = lblTipoLicencia.getText();
+
         String fEmision = lblFechaEmision.getText();
         String fVence = lblFechaVencimiento.getText();
 
-        // Ventana para elegir donde guardar el archivo
         FileChooser selector = new FileChooser();
         selector.setInitialFileName("Licencia_" + cedula + ".pdf");
         File destino = selector.showSaveDialog(btnExportar.getScene().getWindow());
 
         if (destino != null) {
             try (PrintWriter pw = new PrintWriter(destino)) {
-                // Comienzo del archivo PDF (estructura mínima)
                 pw.println("%PDF-1.4");
                 pw.println("1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj");
                 pw.println("2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj");
@@ -183,31 +189,29 @@ public class GenerarLicenciaController {
                 pw.println("4 0 obj << /Length 1500 >> stream");
                 pw.println("BT");
 
-                // --- DIBUJAR MARCO DE LA LICENCIA ---
-                pw.println("1 w"); // Grosor de la línea
-                pw.println("50 550 500 200 re S"); // Cuadro grande (x, y, ancho, alto)
+                pw.println("1 w");
+                pw.println("50 550 500 200 re S");
+                pw.println("70 575 100 125 re S");
 
-                // --- DIBUJAR CUADRO DE LA FOTO ---
-                pw.println("70 575 100 125 re S"); // Cuadro pequeño para la foto
-
-                // --- ESCRIBIR DATOS ---
-                pw.println("/F1 12 Tf"); // Fuente Courier tamaño 12
+                pw.println("/F1 12 Tf");
                 pw.println("180 720 Td (REPUBLICA DEL ECUADOR) Tj");
                 pw.println("0 -20 Td (LICENCIA NACIONAL DE CONDUCIR) Tj");
 
                 pw.println("/F1 10 Tf");
-                pw.println("0 -40 Td (" +  ") Tj");
+
+                // --- CORRECCIÓN AQUÍ ---
+                // Se agrega el texto "TIPO: " antes del valor para que aparezca en el PDF
+                pw.println("0 -40 Td (TIPO: " + tipoValor + ") Tj");
+
                 pw.println("0 -20 Td (CEDULA: " + cedula + ") Tj");
                 pw.println("0 -20 Td (NOMBRE: " + nombre + ") Tj");
 
-                // Posicionamos las fechas al final del cuadro
                 pw.println("0 -40 Td (EMISION: " + fEmision + "      VENCE: " + fVence + ") Tj");
 
                 pw.println("ET");
                 pw.println("endstream");
                 pw.println("endobj");
 
-                // Cierre del PDF (tarea mínima)
                 pw.println("xref");
                 pw.println("0 5");
                 pw.println("0000000000 65535 f");
@@ -216,7 +220,6 @@ public class GenerarLicenciaController {
 
                 pw.flush();
 
-                // Intentamos abrirlo
                 try {
                     Desktop.getDesktop().open(destino);
                 } catch (UnsupportedOperationException | IOException ex) {

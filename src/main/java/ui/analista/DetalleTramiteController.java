@@ -18,26 +18,49 @@ public class DetalleTramiteController extends BaseController {
     @FXML private Label lblNombre, lblCedula, lblEstadoActual;
     @FXML private Button btnGenerarLicencia;
 
-    // ACTUALIZADO: Estos IDs deben coincidir exactamente con el fx:id del FXML
     @FXML private CheckBox chkCopiaCedula, chkCertificadoVotacion, chkExamenTeorico;
-
-    // Si en tu FXML tienes fx:id="chkFotos", fx:id="chkCertificado", etc., cámbialos aquí:
     @FXML private CheckBox chkFotos, chkCertificado, chkMultas;
-
-    @FXML private TextArea txtNotas; // Por si tienes un área de notas
+    @FXML private TextArea txtNotas;
 
     private final TramiteService tramiteService = new TramiteService();
     private Tramite tramiteEncontrado;
+
+    /**
+     * Inicializa el controlador y configura el filtro de entrada para la cédula.
+     */
+    @FXML
+    public void initialize() {
+        // MEJORA: Solo permite números y máximo 10 caracteres mientras el usuario escribe
+        txtBusquedaId.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                txtBusquedaId.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            if (txtBusquedaId.getText().length() > 10) {
+                txtBusquedaId.setText(txtBusquedaId.getText().substring(0, 10));
+            }
+        });
+    }
 
     @FXML
     private void handleBuscar() {
         try {
             String busqueda = txtBusquedaId.getText().trim();
+
+            // 1. VALIDACIÓN: Ingrese algo
             if (busqueda.isEmpty()) {
-                mostrarAlerta("Error", "Por favor ingrese una cédula para buscar.", Alert.AlertType.WARNING);
+                mostrarAlerta("Atención", "Por favor ingrese una cédula para buscar.", Alert.AlertType.WARNING);
                 return;
             }
 
+            // 2. VALIDACIÓN: Exactamente 10 dígitos
+            if (busqueda.length() != 10) {
+                mostrarAlerta("Cédula Incompleta",
+                        "Para realizar la consulta, debe ingresar los 10 dígitos de la cédula correctamente.",
+                        Alert.AlertType.WARNING);
+                return;
+            }
+
+            // 3. BÚSQUEDA: Solo llegamos aquí si pasó la validación de 10 dígitos
             List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
 
             if (resultados != null && !resultados.isEmpty()) {
@@ -46,12 +69,17 @@ public class DetalleTramiteController extends BaseController {
                 lblCedula.setText("Cédula: " + tramiteEncontrado.getCedula());
                 lblEstadoActual.setText("Estado: " + tramiteEncontrado.getEstado().toUpperCase());
 
+                // Habilitar botón solo si está aprobado
                 btnGenerarLicencia.setDisable(!tramiteEncontrado.getEstado().equalsIgnoreCase("aprobado"));
             } else {
-                mostrarAlerta("Información", "No se encontró ningún trámite con esa cédula.", Alert.AlertType.INFORMATION);
+                // Ahora este mensaje solo sale cuando la cédula es de 10 dígitos pero no existe
+                mostrarAlerta("Información", "No se encontró ningún trámite registrado con la cédula: " + busqueda, Alert.AlertType.INFORMATION);
                 limpiarCampos();
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            mostrarAlerta("Error", "Ocurrió un error al consultar la base de datos.", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -60,18 +88,15 @@ public class DetalleTramiteController extends BaseController {
             mostrarAlerta("Error", "Debe buscar un trámite antes de guardar requisitos.", Alert.AlertType.ERROR);
             return;
         }
-        System.out.println("Guardando requisitos para: " + tramiteEncontrado.getNombre());
         mostrarAlerta("Éxito", "Requisitos actualizados correctamente.", Alert.AlertType.INFORMATION);
     }
 
-    // NUEVO MÉTODO: Esto quitará el error rojo de "handleGuardarNotas" en el FXML
     @FXML
     private void handleGuardarNotas(ActionEvent event) {
         if (tramiteEncontrado == null) {
             mostrarAlerta("Error", "No hay un trámite cargado.", Alert.AlertType.ERROR);
             return;
         }
-        System.out.println("Notas guardadas");
         mostrarAlerta("Éxito", "Observaciones guardadas correctamente.", Alert.AlertType.INFORMATION);
     }
 
@@ -86,8 +111,6 @@ public class DetalleTramiteController extends BaseController {
             GenerarLicenciaController controller = loader.getController();
 
             if (controller != null) {
-                tramiteEncontrado.setNombre(lblNombre.getText().replace("Nombre: ", "").trim());
-                tramiteEncontrado.setCedula(lblCedula.getText().replace("Cédula: ", "").trim());
                 controller.initData(tramiteEncontrado);
             }
 
@@ -95,7 +118,10 @@ public class DetalleTramiteController extends BaseController {
             if (contentArea != null) {
                 contentArea.getChildren().setAll(root);
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo abrir el módulo de licencias.", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -108,7 +134,12 @@ public class DetalleTramiteController extends BaseController {
         btnGenerarLicencia.setDisable(true);
         tramiteEncontrado = null;
 
-        // Limpiar checkboxes si existen
         if(chkCopiaCedula != null) chkCopiaCedula.setSelected(false);
+        if(chkCertificadoVotacion != null) chkCertificadoVotacion.setSelected(false);
+        if(chkExamenTeorico != null) chkExamenTeorico.setSelected(false);
+        if(chkFotos != null) chkFotos.setSelected(false);
+        if(chkCertificado != null) chkCertificado.setSelected(false);
+        if(chkMultas != null) chkMultas.setSelected(false);
+        if(txtNotas != null) txtNotas.clear();
     }
 }

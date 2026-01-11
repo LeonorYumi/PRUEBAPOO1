@@ -1,8 +1,11 @@
 package ui.analista;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import model.Tramite;
 import service.TramiteService;
 import ui.base.BaseController;
@@ -18,6 +21,19 @@ public class RegistrarExamenController extends BaseController {
     private final TramiteService tramiteService = new TramiteService();
     private Tramite tramiteEncontrado;
 
+    @FXML
+    public void initialize() {
+        // MEJORA: Solo permitir números y máximo 10 caracteres en el buscador
+        txtBusquedaId.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                txtBusquedaId.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            if (txtBusquedaId.getText().length() > 10) {
+                txtBusquedaId.setText(txtBusquedaId.getText().substring(0, 10));
+            }
+        });
+    }
+
     @Override
     public void limpiarCampos() {
         txtBusquedaId.clear();
@@ -31,20 +47,21 @@ public class RegistrarExamenController extends BaseController {
     private void handleBuscar() {
         try {
             String busqueda = txtBusquedaId.getText().trim();
-            if (busqueda.isEmpty()) {
-                mostrarAlerta("Atención", "Ingrese una cédula o ID para buscar.", Alert.AlertType.WARNING);
+
+            // VALIDACIÓN DE 10 DÍGITOS (Requerimiento solicitado)
+            if (busqueda.length() != 10 || !busqueda.matches("[0-9]+")) {
+                lblNombreCliente.setText("INGRESE LOS 10 DÍGITOS CORRECTAMENTE");
+                lblNombreCliente.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
+                mostrarAlerta("Atención", "La cédula debe tener exactamente 10 dígitos numéricos.", Alert.AlertType.WARNING);
                 return;
             }
 
-            // Búsqueda robusta
-            if (busqueda.length() == 10 && busqueda.matches("[0-9]+")) {
-                List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
-                if (resultados != null && !resultados.isEmpty()) tramiteEncontrado = resultados.get(0);
-            } else if (busqueda.matches("[0-9]+")) {
-                tramiteEncontrado = tramiteService.buscarTramitePorId(Integer.parseInt(busqueda));
-            }
+            // Búsqueda robusta tras pasar la validación
+            List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
 
-            if (tramiteEncontrado != null) {
+            if (resultados != null && !resultados.isEmpty()) {
+                tramiteEncontrado = resultados.get(0);
+
                 // Validación de seguridad: Solo permitir exámenes si el trámite está en el estado correcto
                 if (!tramiteEncontrado.getEstado().equalsIgnoreCase("en_examenes") &&
                         !tramiteEncontrado.getEstado().equalsIgnoreCase("pendiente")) {
@@ -54,8 +71,8 @@ public class RegistrarExamenController extends BaseController {
                 lblNombreCliente.setText("Solicitante: " + tramiteEncontrado.getNombre());
                 lblNombreCliente.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
             } else {
-                lblNombreCliente.setText("No se encontró el trámite.");
-                lblNombreCliente.setStyle("-fx-text-fill: #c0392b;");
+                lblNombreCliente.setText("TRÁMITE NO ENCONTRADO");
+                lblNombreCliente.setStyle("-fx-text-fill: #c0392b; -fx-font-weight: bold;");
             }
         } catch (Exception e) {
             mostrarAlerta("Error", "Error en la búsqueda: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -70,7 +87,11 @@ public class RegistrarExamenController extends BaseController {
         }
 
         try {
-            // 1. Obtención y validación de notas
+            if (txtNotaTeorica.getText().isEmpty() || txtNotaPractica.getText().isEmpty()) {
+                mostrarAlerta("Campos vacíos", "Debe ingresar ambas notas para calificar.", Alert.AlertType.WARNING);
+                return;
+            }
+
             double notaT = Double.parseDouble(txtNotaTeorica.getText().replace(",", "."));
             double notaP = Double.parseDouble(txtNotaPractica.getText().replace(",", "."));
 
@@ -79,14 +100,9 @@ public class RegistrarExamenController extends BaseController {
                 return;
             }
 
-            // 2. Aplicación de la Regla de Negocio 4.3
-            // "si notas ≥ 14 → estado = aprobado, sino reprobado"
             String resultadoFinal = (notaT >= 14 && notaP >= 14) ? "APROBADO" : "REPROBADO";
-
-            // 3. Persistencia
             tramiteService.registrarExamen(tramiteEncontrado.getId(), notaT, notaP);
 
-            // 4. Feedback visual al usuario
             String mensaje = String.format("Notas: T:%.2f, P:%.2f\nResultado: %s", notaT, notaP, resultadoFinal);
 
             if (resultadoFinal.equals("APROBADO")) {
@@ -106,7 +122,15 @@ public class RegistrarExamenController extends BaseController {
 
     @FXML
     private void handleRegresar() {
-        StackPane contentArea = (StackPane) txtNotaTeorica.getScene().lookup("#contentArea");
-        if (contentArea != null) contentArea.getChildren().clear();
+        try {
+            // Ajusta la ruta a tu vista de bienvenida analista
+            String ruta = "/ui/analista/BienvenidaAnalistaView.fxml";
+            Parent root = FXMLLoader.load(getClass().getResource(ruta));
+            Stage stage = (Stage) txtBusquedaId.getScene().getWindow();
+            stage.setScene(new Scene(root));
+        } catch (Exception e) {
+            // Si falla la carga del FXML (por si estás usando un StackPane principal)
+            System.err.println("Error al navegar: " + e.getMessage());
+        }
     }
 }
