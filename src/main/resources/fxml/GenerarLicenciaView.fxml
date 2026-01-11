@@ -1,63 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ui.analista.GenerarLicenciaController">
     <children>
-        <VBox spacing="25" alignment="TOP_CENTER" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" style="-fx-padding: 30; -fx-background-color: #f8f9fa;">
+        <VBox spacing="20" alignment="TOP_CENTER" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" style="-fx-padding: 25; -fx-background-color: #f8f9fa;">
 
             <VBox alignment="CENTER" spacing="5">
                 <Label text="EMISIÓN DE LICENCIA DE CONDUCIR" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
                 <Label text="Vista previa del documento legal" style="-fx-text-fill: #7f8c8d;" />
             </VBox>
 
-            <Pane maxWidth="500" prefHeight="280" style="-fx-background-color: white; -fx-border-color: #3498db; -fx-border-width: 2; -fx-border-radius: 15; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 5);">
+            <HBox spacing="10" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #dee2e6; -fx-border-radius: 10;">
+                <Label text="Cédula:" style="-fx-font-weight: bold;" />
+                <TextField fx:id="txtBusquedaRapida" prefWidth="180" promptText="Ingrese C.I. (10 dígitos)" />
+                <Button text="🔍 Consultar" onAction="#handleBuscarRapido" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-cursor: hand;"/>
+            </HBox>
+
+            <Pane maxWidth="550" prefHeight="280" style="-fx-background-color: white; -fx-border-color: #3498db; -fx-border-width: 2; -fx-border-radius: 15; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 5);">
                 <children>
-                    <HBox layoutX="20" layoutY="15" spacing="10" alignment="CENTER_LEFT" prefWidth="460">
+                    <HBox layoutX="20" layoutY="15" spacing="10" alignment="CENTER_LEFT" prefWidth="510">
                         <VBox>
-                            <Label text="REPÚBLICA DEL ECUADOR" style="-fx-font-weight: bold; -fx-font-size: 14;" />
-                            <Label text="AGENCIA NACIONAL DE TRÁNSITO" style="-fx-font-size: 10;" />
+                            <Label text="REPÚBLICA DEL ECUADOR" style="-fx-font-weight: bold; -fx-font-size: 13;" />
+                            <Label text="AGENCIA NACIONAL DE TRÁNSITO" style="-fx-font-size: 9;" />
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="lblTipoLicencia" text="TIPO B" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" />
+                        <Label fx:id="lblTipoLicencia" text="TIPO -" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" />
                     </HBox>
 
-                    <Separator layoutX="20" layoutY="65" prefWidth="460" />
+                    <Separator layoutX="20" layoutY="60" prefWidth="510" />
 
-                    <GridPane layoutX="25" layoutY="85" vgap="12" hgap="15">
-                        <columnConstraints>
-                            <ColumnConstraints minWidth="120" />
-                            <ColumnConstraints minWidth="250" />
-                        </columnConstraints>
+                    <HBox layoutX="20" layoutY="75" spacing="20" alignment="TOP_LEFT">
+                        <children>
+                            <GridPane vgap="8" hgap="10" prefWidth="340">
+                                <columnConstraints>
+                                    <ColumnConstraints minWidth="110" />
+                                    <ColumnConstraints minWidth="220" />
+                                </columnConstraints>
 
-                        <Label text="N° LICENCIA (C.I.):" GridPane.rowIndex="0" style="-fx-font-size: 11; -fx-text-fill: #95a5a6;" />
-                        <Label fx:id="lblNumeroLicencia" text="0000000000" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                                <Label text="N° LICENCIA (C.I.):" GridPane.rowIndex="0" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;" />
+                                <Label fx:id="lblNumeroLicencia" text="0000000000" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-weight: bold; -fx-font-size: 13;" />
 
-                        <Label text="APELLIDOS Y NOMBRES:" GridPane.rowIndex="1" style="-fx-font-size: 11; -fx-text-fill: #95a5a6;" />
-                        <Label fx:id="lblNombreConductor" text="CARGANDO DATOS..." GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-font-weight: bold; -fx-font-size: 14;" wrapText="true" />
+                                <Label text="APELLIDOS Y NOMBRES:" GridPane.rowIndex="1" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;" />
+                                <Label fx:id="lblNombreConductor" text="---" GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-font-weight: bold; -fx-font-size: 12;" wrapText="true" />
 
-                        <Label text="FECHA EMISIÓN:" GridPane.rowIndex="2" style="-fx-font-size: 11; -fx-text-fill: #95a5a6;" />
-                        <Label fx:id="lblFechaEmision" text="--" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                                <Label text="FECHA EMISIÓN:" GridPane.rowIndex="2" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;" />
+                                <Label fx:id="lblFechaEmision" text="--" GridPane.rowIndex="2" GridPane.columnIndex="1" />
 
-                        <Label text="FECHA VENCIMIENTO:" GridPane.rowIndex="3" style="-fx-font-size: 11; -fx-text-fill: #95a5a6;" />
-                        <Label fx:id="lblFechaVencimiento" text="--" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-text-fill: #c0392b; -fx-font-weight: bold;" />
-                    </GridPane>
+                                <Label text="FECHA VENCIMIENTO:" GridPane.rowIndex="3" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;" />
+                                <Label fx:id="lblFechaVencimiento" text="--" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-text-fill: #c0392b; -fx-font-weight: bold;" />
+                            </GridPane>
+
+                            <VBox alignment="CENTER" spacing="5">
+                                <StackPane style="-fx-border-color: #bdc3c7; -fx-border-width: 1; -fx-background-color: #f1f2f6;">
+                                    <ImageView fitHeight="125.0" fitWidth="105.0" pickOnBounds="true" preserveRatio="true">
+                                        <Image url="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" />
+                                    </ImageView>
+                                </StackPane>
+                                <Label text="FOTO" style="-fx-font-size: 8;" />
+                            </VBox>
+                        </children>
+                    </HBox>
                 </children>
             </Pane>
 
             <HBox spacing="15" alignment="CENTER">
-                <Button fx:id="btnRegresar" text="⬅ Regresar" onAction="#handleRegresar" prefWidth="120"
-                        style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;" />
-
-                <Button fx:id="btnGenerar" text="💾 Generar y Guardar" onAction="#handleGenerar" prefWidth="180"
-                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
-
-                <Button fx:id="btnExportar" text="📄 Exportar PDF" onAction="#handleExportarPDF" disable="true" prefWidth="140"
-                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;" />
+                <Button fx:id="btnRegresar" text="⬅ Regresar" onAction="#handleRegresar" prefWidth="130" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Button fx:id="btnGenerar" text="💾 Generar Licencia" onAction="#handleGenerar" prefWidth="180" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;" disable="true"/>
+                <Button fx:id="btnExportar" text="📄 PDF" onAction="#handleExportarPDF" prefWidth="100" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;" disable="true"/>
             </HBox>
         </VBox>
     </children>

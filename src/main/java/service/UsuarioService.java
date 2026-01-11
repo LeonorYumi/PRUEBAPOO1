@@ -22,4 +22,9 @@ public class UsuarioService {
     public List<Usuario> obtenerTodos() throws Exception {
         return usuarioDao.findAll();
     }
+
+    // Único método necesario para actualizar datos y estado (activo/inactivo)
+    public void actualizarUsuario(Usuario u) throws Exception {
+        usuarioDao.update(u);
+    }
 }

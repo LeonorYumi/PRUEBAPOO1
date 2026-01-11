@@ -7,7 +7,6 @@ import java.util.List;
 
 public class UsuarioDao {
 
-    // Tu método findByLogin se queda EXACTAMENTE igual
     public Usuario findByLogin(String user, String pass) {
         String sql = "SELECT u.id, u.nombre, u.username, r.nombre AS rol_nombre " +
                 "FROM usuarios u " +
@@ -34,11 +33,8 @@ public class UsuarioDao {
         return null;
     }
 
-    // NUEVO: Para guardar cumpliendo con tu seguridad (password_hash)
     public void save(Usuario u) throws SQLException {
-        // Asumimos: rol_id 1 para Admin, 2 para Analista (ajusta según tu BD)
         int rolId = u.getRol().equalsIgnoreCase("admin") ? 1 : 2;
-
         String sql = "INSERT INTO usuarios (nombre, cedula, username, password_hash, rol_id, activo) " +
                 "VALUES (?, ?, ?, SHA2(?, 256), ?, ?)";
 
@@ -54,7 +50,6 @@ public class UsuarioDao {
         }
     }
 
-    // NUEVO: Para llenar la tabla del Administrador
     public List<Usuario> findAll() throws SQLException {
         List<Usuario> lista = new ArrayList<>();
         String sql = "SELECT u.*, r.nombre AS rol_nombre FROM usuarios u JOIN roles r ON u.rol_id = r.id";
@@ -74,5 +69,38 @@ public class UsuarioDao {
             }
         }
         return lista;
+    }
+
+    /**
+     * ACTUALIZAR: Este método centraliza la edición de datos y el cambio de estado.
+     */
+    public void update(Usuario u) throws SQLException {
+        int rolId = u.getRol().equalsIgnoreCase("admin") ? 1 : 2;
+
+        // Verificamos si se proporcionó una nueva contraseña
+        boolean actualizaPass = u.getPassword() != null && !u.getPassword().trim().isEmpty();
+
+        String sql = actualizaPass
+                ? "UPDATE usuarios SET nombre=?, cedula=?, username=?, rol_id=?, activo=?, password_hash=SHA2(?, 256) WHERE id=?"
+                : "UPDATE usuarios SET nombre=?, cedula=?, username=?, rol_id=?, activo=? WHERE id=?";
+
+        try (Connection cn = Conexion.getConexion();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setString(1, u.getNombre());
+            ps.setString(2, u.getCedula());
+            ps.setString(3, u.getUsername());
+            ps.setInt(4, rolId);
+            ps.setBoolean(5, u.isActivo()); // Aquí se guarda el estado activo/inactivo
+
+            if (actualizaPass) {
+                ps.setString(6, u.getPassword());
+                ps.setInt(7, u.getId());
+            } else {
+                ps.setInt(6, u.getId());
+            }
+
+            ps.executeUpdate();
+        }
     }
 }

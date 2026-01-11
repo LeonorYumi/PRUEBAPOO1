@@ -1,30 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ui.analista.DetalleTramiteController">
     <children>
         <ScrollPane fitToWidth="true" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" style="-fx-background-color: transparent;">
             <content>
-                <VBox spacing="20" style="-fx-padding: 20;">
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Cédula :" style="-fx-font-weight: bold;" />
-                        <TextField fx:id="txtBusquedaId" prefWidth="100"/>
-                        <Button text="🔍 Buscar" onAction="#handleBuscar" />
+                <VBox spacing="20" style="-fx-padding: 30; -fx-background-color: #f8f9fa;">
+
+                    <VBox spacing="5">
+                        <Label text="4.5 Búsqueda Detallada de Trámite" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Label text="Consulta de historial, validación de requisitos y registro de calificaciones." style="-fx-text-fill: #7f8c8d;"/>
+                    </VBox>
+
+                    <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                        <Label text="Cédula de Identidad:" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                        <TextField fx:id="txtBusquedaId" prefWidth="200" promptText="Ej: 1712345678"
+                                   style="-fx-font-size: 14; -fx-background-radius: 5;"/>
+                        <Button text="🔍 Consultar Trámite" onAction="#handleBuscar"
+                                style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 20;"/>
+                        <Button text="Limpiar" onAction="#limpiarCampos"
+                                style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-cursor: hand;"/>
                     </HBox>
 
-                    <TitledPane text="Datos del Solicitante" collapsible="false">
-                        <VBox spacing="10">
-                            <Label fx:id="lblNombre" text="Nombre: ---" />
-                            <Label fx:id="lblCedula" text="Cédula: ---" />
-                            <Label fx:id="lblEstadoActual" text="Estado: ---" />
-                        </VBox>
+                    <TitledPane text="1. Datos del Solicitante y Estado Actual" collapsible="false" style="-fx-font-weight: bold; -fx-text-fill: #2980b9;">
+                        <GridPane hgap="30" vgap="15" style="-fx-padding: 15;">
+                            <VBox GridPane.columnIndex="0">
+                                <Label text="Nombre Completo:" style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
+                                <Label fx:id="lblNombre" text="---" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                            </VBox>
+                            <VBox GridPane.columnIndex="1">
+                                <Label text="Documento de Identidad:" style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
+                                <Label fx:id="lblCedula" text="---" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                            </VBox>
+                            <VBox GridPane.columnIndex="2">
+                                <Label text="Estado del Trámite:" style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
+                                <Label fx:id="lblEstadoActual" text="---" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #e67e22;"/>
+                            </VBox>
+                        </GridPane>
                     </TitledPane>
 
-                    <Button fx:id="btnGenerarLicencia" text="Generar Licencia" onAction="#handleGenerarLicencia" />
+                    <HBox spacing="20">
+                        <TitledPane text="2. Verificación de Requisitos" collapsible="false" HBox.hgrow="ALWAYS">
+                            <VBox spacing="15" style="-fx-padding: 15;">
+                                <CheckBox fx:id="chkFotos" text="Fotografías tamaño carnet (Fondo blanco)" style="-fx-font-size: 13;"/>
+                                <CheckBox fx:id="chkCertificado" text="Certificado de Instrucción Básica" style="-fx-font-size: 13;"/>
+                                <CheckBox fx:id="chkMultas" text="Validación de No adeudar multas" style="-fx-font-size: 13;"/>
+                                <Separator />
+                                <Button fx:id="btnGuardarReq" text="Actualizar Requisitos" onAction="#handleGuardarRequisitos"
+                                        style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" maxWidth="Infinity"/>
+                            </VBox>
+                        </TitledPane>
+
+                        <TitledPane text="3. Calificaciones de Evaluación" collapsible="false" HBox.hgrow="ALWAYS">
+                            <VBox spacing="15" style="-fx-padding: 15;">
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <Label text="Examen Teórico:" prefWidth="110" style="-fx-font-size: 13;"/>
+                                    <TextField fx:id="txtNotaTeorica" prefWidth="80" promptText="0.00" style="-fx-alignment: center;"/>
+                                </HBox>
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <Label text="Examen Práctico:" prefWidth="110" style="-fx-font-size: 13;"/>
+                                    <TextField fx:id="txtNotaPractica" prefWidth="80" promptText="0.00" style="-fx-alignment: center;"/>
+                                </HBox>
+                                <Separator />
+                                <Button fx:id="btnGuardarNotas" text="Registrar Calificaciones" onAction="#handleGuardarNotas"
+                                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" maxWidth="Infinity"/>
+                            </VBox>
+                        </TitledPane>
+                    </HBox>
+
+                    <StackPane style="-fx-padding: 20 0 0 0;">
+                        <Button fx:id="btnGenerarLicencia" text="🖨️ EMITIR LICENCIA DE CONDUCIR" onAction="#handleGenerarLicencia"
+                                prefHeight="60" prefWidth="450" disable="true"
+                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);"/>
+                    </StackPane>
+
                 </VBox>
             </content>
         </ScrollPane>

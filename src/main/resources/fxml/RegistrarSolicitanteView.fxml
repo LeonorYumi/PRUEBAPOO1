@@ -10,26 +10,30 @@
     <Label text="Complete los datos para iniciar el trámite de licencia" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
 
     <GridPane hgap="15" vgap="15" alignment="CENTER">
-        <Label text="Cédula / DNI:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="txtCedula" promptText="Ingrese identificación" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="Cédula / DNI:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="txtCedula" promptText="Ingrese 10 dígitos" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-        <Label text="Nombre Completo:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <Label text="Nombre Completo:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
         <TextField fx:id="txtNombre" promptText="Nombres y Apellidos" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-        <Label text="Fecha de Nacimiento:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <Label text="Fecha de Nacimiento:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
         <DatePicker fx:id="dateNacimiento" promptText="Seleccione fecha" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-        <Label text="Tipo de Licencia:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <Label text="Tipo de Licencia:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
         <ComboBox fx:id="comboLicencia" prefWidth="200" promptText="Seleccione..." GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-        <Label text="Fecha Solicitud:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <Label text="Fecha Solicitud:" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
         <DatePicker fx:id="dateSolicitud" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
     </GridPane>
 
     <HBox spacing="15" alignment="CENTER">
-        <Button text="Guardar Registro" onAction="#handleGuardar"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-        <Button text="Limpiar Campos" onAction="#handleLimpiar"
-                style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-padding: 10 20;"/>
+        <Button text="⬅ Regresar" onAction="#handleRegresar"
+                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand;"/>
+
+        <Button text="💾 Guardar Registro" onAction="#handleGuardar"
+                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand;"/>
+
+        <Button text=" Limpiar Campos" onAction="#handleLimpiar"
+                style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand;"/>
     </HBox>
 </VBox>

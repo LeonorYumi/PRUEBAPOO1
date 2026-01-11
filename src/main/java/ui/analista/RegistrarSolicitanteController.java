@@ -2,40 +2,30 @@ package ui.analista;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import model.Solicitante;
 import service.SolicitanteService;
-import ui.base.BaseController; // Asegúrate que la ruta sea ui.BaseController según tu código previo
+import ui.base.BaseController;
 import java.time.LocalDate;
 
-/**
- * Controlador para el registro de nuevos solicitantes.
- * Vinculado con RegistrarSolicitanteView.fxml
- */
 public class RegistrarSolicitanteController extends BaseController {
 
-    // Los IDs deben ser EXACTAMENTE iguales al FXML
     @FXML private TextField txtCedula;
     @FXML private TextField txtNombre;
     @FXML private DatePicker dateNacimiento;
     @FXML private ComboBox<String> comboLicencia;
-    @FXML private DatePicker dateSolicitud; // Agregado para coincidir con el FXML
+    @FXML private DatePicker dateSolicitud;
 
     private final SolicitanteService solicitanteService = new SolicitanteService();
 
     @FXML
     public void initialize() {
-        // Llenar el combo con las opciones
         comboLicencia.getItems().addAll("Tipo A", "Tipo B", "Tipo C", "Tipo D", "Tipo E");
-
-        // Seteamos la fecha actual por defecto en el campo de solicitud
         if (dateSolicitud != null) {
             dateSolicitud.setValue(LocalDate.now());
         }
     }
 
-    /**
-     * Implementación de BaseController (Polimorfismo)
-     */
     @Override
     public void limpiarCampos() {
         txtCedula.clear();
@@ -45,24 +35,31 @@ public class RegistrarSolicitanteController extends BaseController {
         if (dateSolicitud != null) dateSolicitud.setValue(LocalDate.now());
     }
 
-    /**
-     * Vinculado a onAction="#handleLimpiar" en el FXML
-     */
+    @FXML private void handleLimpiar() { limpiarCampos(); }
+
+    // NUEVO: Método para cumplir con el requerimiento del botón Regresar
     @FXML
-    private void handleLimpiar() {
+    private void handleRegresar() {
+        // Si es un StackPane (contenido dinámico), simplemente limpiamos el área
+        // o cargamos la vista de bienvenida.
+        // Si el AdminController maneja la navegación, este botón puede estar vacío
+        // o redirigir al Dashboard.
         limpiarCampos();
+        mostrarAlerta("Información", "Regresando al panel principal...", Alert.AlertType.INFORMATION);
     }
 
-    /**
-     * Vinculado a onAction="#handleGuardar" en el FXML
-     */
     @FXML
     private void handleGuardar() {
-        // Validación de campos
+        // Validación de campos vacíos
         if (txtCedula.getText().isEmpty() || txtNombre.getText().isEmpty() ||
                 dateNacimiento.getValue() == null || comboLicencia.getValue() == null) {
-
             mostrarAlerta("Atención", "Todos los campos son obligatorios.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // Validación de cédula (10 dígitos)
+        if (txtCedula.getText().trim().length() != 10) {
+            mostrarAlerta("Error", "La cédula debe tener exactamente 10 dígitos.", Alert.AlertType.ERROR);
             return;
         }
 
@@ -72,12 +69,13 @@ public class RegistrarSolicitanteController extends BaseController {
             nuevo.setNombre(txtNombre.getText().trim());
             nuevo.setFechaNacimiento(dateNacimiento.getValue());
             nuevo.setTipoLicencia(comboLicencia.getValue());
-            nuevo.setCreatedBy(1); // ID del usuario logueado (simulado)
+            nuevo.setCreatedBy(1);
 
-            // El Service se encarga de la persistencia y el trámite
+            // IMPORTANTE: El Service debe ejecutar un SQL que inserte en
+            // la tabla 'solicitantes' y LUEGO en la tabla 'tramites' con estado 'pendiente'
             solicitanteService.registrarSolicitante(nuevo);
 
-            mostrarAlerta("Éxito", "Solicitante guardado correctamente.", Alert.AlertType.INFORMATION);
+            mostrarAlerta("Éxito", "Solicitante y Trámite 'Pendiente' creados correctamente.", Alert.AlertType.INFORMATION);
             limpiarCampos();
 
         } catch (Exception e) {

@@ -8,10 +8,6 @@ import service.TramiteService;
 import ui.base.BaseController;
 import java.util.List;
 
-/**
- * Controlador para registrar las notas de los exámenes.
- * Hereda de BaseController para estandarizar el manejo de la interfaz.
- */
 public class RegistrarExamenController extends BaseController {
 
     @FXML private TextField txtBusquedaId;
@@ -22,10 +18,6 @@ public class RegistrarExamenController extends BaseController {
     private final TramiteService tramiteService = new TramiteService();
     private Tramite tramiteEncontrado;
 
-    /**
-     * Implementación obligatoria (Polimorfismo).
-     * El padre dice qué hacer (limpiar), el hijo decide cómo (estos campos).
-     */
     @Override
     public void limpiarCampos() {
         txtBusquedaId.clear();
@@ -39,15 +31,12 @@ public class RegistrarExamenController extends BaseController {
     private void handleBuscar() {
         try {
             String busqueda = txtBusquedaId.getText().trim();
-            lblNombreCliente.setText("");
-            tramiteEncontrado = null;
-
             if (busqueda.isEmpty()) {
                 mostrarAlerta("Atención", "Ingrese una cédula o ID para buscar.", Alert.AlertType.WARNING);
                 return;
             }
 
-            // Lógica Dual: Busca por cédula (10 dígitos) o por ID directamente
+            // Búsqueda robusta
             if (busqueda.length() == 10 && busqueda.matches("[0-9]+")) {
                 List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
                 if (resultados != null && !resultados.isEmpty()) tramiteEncontrado = resultados.get(0);
@@ -56,6 +45,12 @@ public class RegistrarExamenController extends BaseController {
             }
 
             if (tramiteEncontrado != null) {
+                // Validación de seguridad: Solo permitir exámenes si el trámite está en el estado correcto
+                if (!tramiteEncontrado.getEstado().equalsIgnoreCase("en_examenes") &&
+                        !tramiteEncontrado.getEstado().equalsIgnoreCase("pendiente")) {
+                    mostrarAlerta("Estado no válido", "Este trámite ya está " + tramiteEncontrado.getEstado().toUpperCase(), Alert.AlertType.INFORMATION);
+                }
+
                 lblNombreCliente.setText("Solicitante: " + tramiteEncontrado.getNombre());
                 lblNombreCliente.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
             } else {
@@ -75,16 +70,35 @@ public class RegistrarExamenController extends BaseController {
         }
 
         try {
-            // Conversión de datos (Encapsulamiento de lógica de negocio en el Service)
+            // 1. Obtención y validación de notas
             double notaT = Double.parseDouble(txtNotaTeorica.getText().replace(",", "."));
             double notaP = Double.parseDouble(txtNotaPractica.getText().replace(",", "."));
 
+            if (notaT < 0 || notaT > 20 || notaP < 0 || notaP > 20) {
+                mostrarAlerta("Rango excedido", "Las notas deben estar entre 0 y 20.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // 2. Aplicación de la Regla de Negocio 4.3
+            // "si notas ≥ 14 → estado = aprobado, sino reprobado"
+            String resultadoFinal = (notaT >= 14 && notaP >= 14) ? "APROBADO" : "REPROBADO";
+
+            // 3. Persistencia
             tramiteService.registrarExamen(tramiteEncontrado.getId(), notaT, notaP);
 
-            mostrarAlerta("Éxito", "Notas guardadas para: " + tramiteEncontrado.getNombre(), Alert.AlertType.INFORMATION);
+            // 4. Feedback visual al usuario
+            String mensaje = String.format("Notas: T:%.2f, P:%.2f\nResultado: %s", notaT, notaP, resultadoFinal);
+
+            if (resultadoFinal.equals("APROBADO")) {
+                mostrarAlerta("Trámite Aprobado", mensaje, Alert.AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Trámite Reprobado", mensaje + "\nEl solicitante debe repetir el proceso.", Alert.AlertType.WARNING);
+            }
+
             limpiarCampos();
+
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error de Formato", "Asegúrese de ingresar números válidos en las notas.", Alert.AlertType.WARNING);
+            mostrarAlerta("Error de Formato", "Ingrese números válidos (ej: 15.50).", Alert.AlertType.WARNING);
         } catch (Exception e) {
             mostrarAlerta("Error al Guardar", e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -92,7 +106,6 @@ public class RegistrarExamenController extends BaseController {
 
     @FXML
     private void handleRegresar() {
-        // Navegación para limpiar el área central
         StackPane contentArea = (StackPane) txtNotaTeorica.getScene().lookup("#contentArea");
         if (contentArea != null) contentArea.getChildren().clear();
     }

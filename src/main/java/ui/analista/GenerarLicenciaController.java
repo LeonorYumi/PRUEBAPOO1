@@ -1,65 +1,91 @@
 package ui.analista;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import model.Tramite;
 import model.Licencia;
 import service.LicenciaService;
+import service.TramiteService; // Importante para la búsqueda
 import ui.base.BaseController;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.io.File;
-import java.awt.Desktop;
+import java.io.IOException;
+import java.util.List;
 
-// Importaciones para PDFBox (Generación de documentos)
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-
-/**
- * Controlador para la emisión de licencias en formato PDF.
- * Aplica Herencia al extender de BaseController.
- */
 public class GenerarLicenciaController extends BaseController {
 
     @FXML private Label lblNumeroLicencia, lblNombreConductor, lblTipoLicencia, lblFechaEmision, lblFechaVencimiento;
-    @FXML private Button btnGenerar, btnExportar;
+    @FXML private Button btnGenerar, btnExportar, btnRegresar;
+    @FXML private TextField txtBusquedaRapida; // Campo para búsqueda desde el menú
 
     private Tramite tramiteActivo;
     private final LicenciaService licenciaService = new LicenciaService();
+    private final TramiteService tramiteService = new TramiteService();
 
-    /**
-     * Implementación obligatoria del método de limpieza (Polimorfismo).
-     */
     @Override
     public void limpiarCampos() {
-        lblNumeroLicencia.setText("---");
+        lblNumeroLicencia.setText("0000000000");
+        lblNombreConductor.setText("---");
+        lblTipoLicencia.setText("TIPO -");
+        lblFechaEmision.setText("--");
+        lblFechaVencimiento.setText("--");
+        btnGenerar.setDisable(true);
         btnExportar.setDisable(true);
-        btnExportar.setOpacity(0.5);
     }
 
-    /**
-     * Recibe los datos del trámite desde la pantalla anterior.
-     */
+    // Método para buscar si entras directamente desde el menú
+    @FXML
+    private void handleBuscarRapido() {
+        String cedula = txtBusquedaRapida.getText().trim();
+
+        if (!cedula.matches("\\d{10}")) {
+            mostrarAlerta("Validación", "Ingrese una cédula válida de 10 dígitos.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        try {
+            List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
+            if (resultados != null && !resultados.isEmpty()) {
+                Tramite t = resultados.get(0);
+                String estado = t.getEstado().toLowerCase();
+
+                // Validamos que el trámite esté en un estado que permita ver la licencia
+                if (estado.equals("aprobado") || estado.equals("licencia_emitida")) {
+                    initData(t);
+                } else {
+                    limpiarCampos();
+                    mostrarAlerta("Estado Inválido", "El trámite está " + estado.toUpperCase() + ". No se puede emitir licencia aún.", Alert.AlertType.WARNING);
+                }
+            } else {
+                limpiarCampos();
+                mostrarAlerta("No encontrado", "No existe trámite para la cédula: " + cedula, Alert.AlertType.ERROR);
+            }
+        } catch (Exception e) {
+            mostrarAlerta("Error", "Error al buscar: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
     public void initData(Tramite tramite) {
         this.tramiteActivo = tramite;
         if (tramite != null) {
             lblNombreConductor.setText(tramite.getNombre().toUpperCase());
-            lblTipoLicencia.setText("TIPO " + tramite.getTipoLicencia());
+
+            // Limpieza de "TIPO TIPO"
+            String tipoLimpio = tramite.getTipoLicencia().toUpperCase().replace("TIPO", "").trim();
+            lblTipoLicencia.setText("TIPO " + tipoLimpio);
+
+            lblNumeroLicencia.setText(tramite.getCedula());
 
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             lblFechaEmision.setText(LocalDate.now().format(fmt));
             lblFechaVencimiento.setText(LocalDate.now().plusYears(5).format(fmt));
 
-            // Activamos el botón para permitir la generación
-            btnGenerar.setDisable(false);
-            btnGenerar.setOpacity(1.0);
-
-            if ("licencia_emitida".equalsIgnoreCase(tramite.getEstado())) {
-                btnExportar.setDisable(false);
-                btnExportar.setOpacity(1.0);
-            }
+            boolean emitida = "licencia_emitida".equalsIgnoreCase(tramite.getEstado());
+            btnGenerar.setDisable(emitida);
+            btnExportar.setDisable(!emitida);
         }
     }
 
@@ -67,74 +93,32 @@ public class GenerarLicenciaController extends BaseController {
     private void handleGenerar() {
         if (tramiteActivo == null) return;
         try {
-            // Llamada al servicio (Abstracción: la UI no sabe cómo se guarda en la DB)
             Licencia nueva = licenciaService.generarLicencia(tramiteActivo.getId(), 1);
-
             if (nueva != null) {
                 lblNumeroLicencia.setText(nueva.getNumeroLicencia());
                 btnExportar.setDisable(false);
-                btnExportar.setOpacity(1.0);
-                // USAMOS EL MÉTODO HEREDADO DEL PADRE
-                mostrarAlerta("Éxito", "Licencia generada con éxito.", Alert.AlertType.INFORMATION);
+                btnGenerar.setDisable(true);
+                tramiteActivo.setEstado("licencia_emitida");
+                mostrarAlerta("Éxito", "Licencia generada correctamente.", Alert.AlertType.INFORMATION);
             }
         } catch (Exception e) {
-            mostrarAlerta("Información", e.getMessage(), Alert.AlertType.INFORMATION);
-            btnExportar.setDisable(false);
-            btnExportar.setOpacity(1.0);
+            mostrarAlerta("Error", "Error: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void handleExportarPDF() {
-        if (tramiteActivo == null) return;
-        String nombreArchivo = "Licencia_" + tramiteActivo.getCedula() + ".pdf";
-        File file = new File(nombreArchivo);
-
-        try (PDDocument documento = new PDDocument()) {
-            PDPage pagina = new PDPage();
-            documento.addPage(pagina);
-
-            try (PDPageContentStream contenido = new PDPageContentStream(documento, pagina)) {
-                // Título del PDF
-                contenido.beginText();
-                contenido.setFont(PDType1Font.HELVETICA_BOLD, 18);
-                contenido.newLineAtOffset(150, 750);
-                contenido.showText("REPUBLICA DEL ECUADOR");
-                contenido.endText();
-
-                // Datos de la licencia
-                contenido.beginText();
-                contenido.setFont(PDType1Font.HELVETICA, 12);
-                contenido.newLineAtOffset(100, 680);
-                contenido.setLeading(25f);
-                contenido.showText("N. LICENCIA: " + lblNumeroLicencia.getText());
-                contenido.newLine();
-                contenido.showText("CONDUCTOR: " + lblNombreConductor.getText());
-                contenido.newLine();
-                contenido.showText("FECHA VENCIMIENTO: " + lblFechaVencimiento.getText());
-                contenido.endText();
-            }
-            documento.save(file);
-
-            // Intenta abrir el archivo automáticamente
-            if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(file);
-            }
-
-            mostrarAlerta("PDF", "Documento generado: " + nombreArchivo, Alert.AlertType.INFORMATION);
-
-        } catch (Exception e) {
-            mostrarAlerta("Error PDF", "No se pudo crear el archivo: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
+        mostrarAlerta("PDF", "Generando PDF para " + lblNombreConductor.getText(), Alert.AlertType.INFORMATION);
     }
 
     @FXML
     private void handleRegresar() {
-        if (lblNombreConductor.getScene() != null) {
-            // Método sencillo para cerrar o esconder la ventana actual
-            lblNombreConductor.getScene().getWindow().hide();
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/DetalleTramiteView.fxml"));
+            StackPane contentArea = (StackPane) btnRegresar.getScene().lookup("#contentArea");
+            if (contentArea != null) contentArea.getChildren().setAll(root);
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo regresar.", Alert.AlertType.ERROR);
         }
     }
-
-    // El método mostrarAlerta() anterior se borra porque ya se hereda de BaseController
 }

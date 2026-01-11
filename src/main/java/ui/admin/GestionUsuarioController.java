@@ -6,109 +6,106 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
 import model.Usuario;
 import service.UsuarioService;
-import ui.base.BaseController; // Ajustado a la ruta estándar
+import ui.base.BaseController;
 import java.util.List;
 
-/**
- * Controlador para la administración de usuarios del sistema.
- * Aplica Herencia de BaseController para estandarizar alertas y limpieza.
- */
 public class GestionUsuarioController extends BaseController {
 
-    @FXML private TextField txtNombre;
-    @FXML private TextField txtCedula;
-    @FXML private TextField txtUsername;
+    @FXML private TextField txtNombre, txtCedula, txtUsername;
     @FXML private PasswordField txtPassword;
-    @FXML private ComboBox<String> cbRol;
-    @FXML private ComboBox<String> cbEstado;
-
+    @FXML private ComboBox<String> cbRol, cbEstado;
     @FXML private TableView<Usuario> tableUsuarios;
-    @FXML private TableColumn<Usuario, String> colNombre;
-    @FXML private TableColumn<Usuario, String> colCedula;
-    @FXML private TableColumn<Usuario, String> colUsername;
-    @FXML private TableColumn<Usuario, String> colRol;
-    @FXML private TableColumn<Usuario, String> colEstado;
+    @FXML private TableColumn<Usuario, String> colNombre, colCedula, colUsername, colRol, colEstado;
 
     private final UsuarioService usuarioService = new UsuarioService();
+    private Usuario usuarioSeleccionado;
 
     @FXML
     public void initialize() {
-        // Configuración de opciones en los ComboBox
         cbRol.setItems(FXCollections.observableArrayList("analista", "admin"));
         cbEstado.setItems(FXCollections.observableArrayList("activo", "inactivo"));
 
-        // Vinculación de columnas con los atributos del modelo Usuario
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCedula.setCellValueFactory(new PropertyValueFactory<>("cedula"));
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colRol.setCellValueFactory(new PropertyValueFactory<>("rol"));
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
+
+        // Columna de estado formateada para mostrar texto claro
+        colEstado.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleStringProperty(cellData.getValue().isActivo() ? "activo" : "inactivo")
+        );
+
+        tableUsuarios.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) cargarUsuario(newVal);
+        });
 
         listarUsuarios();
     }
 
-    /**
-     * Implementación obligatoria del método de limpieza (Polimorfismo).
-     */
+    private void cargarUsuario(Usuario u) {
+        usuarioSeleccionado = u;
+        txtNombre.setText(u.getNombre());
+        txtCedula.setText(u.getCedula());
+        txtUsername.setText(u.getUsername());
+        txtPassword.clear();
+        cbRol.setValue(u.getRol().toLowerCase());
+        cbEstado.setValue(u.isActivo() ? "activo" : "inactivo");
+    }
+
+    @FXML
+    private void handleGuardar() {
+        try {
+            Usuario u = prepararUsuario(new Usuario());
+            usuarioService.crearUsuario(u);
+            mostrarAlerta("Éxito", "Usuario creado correctamente.", Alert.AlertType.INFORMATION);
+            limpiarCampos();
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo guardar: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    private void handleActualizar() {
+        if (usuarioSeleccionado == null) {
+            mostrarAlerta("Aviso", "Seleccione un usuario de la tabla para editar.", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            prepararUsuario(usuarioSeleccionado);
+            usuarioService.actualizarUsuario(usuarioSeleccionado);
+            mostrarAlerta("Éxito", "Usuario actualizado correctamente.", Alert.AlertType.INFORMATION);
+            limpiarCampos();
+        } catch (Exception e) {
+            mostrarAlerta("Error", "Error al actualizar: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    private Usuario prepararUsuario(Usuario u) {
+        u.setNombre(txtNombre.getText());
+        u.setCedula(txtCedula.getText());
+        u.setUsername(txtUsername.getText());
+        // Solo enviamos pass si se escribió algo
+        if (!txtPassword.getText().isEmpty()) u.setPassword(txtPassword.getText());
+        u.setRol(cbRol.getValue());
+        u.setActivo("activo".equals(cbEstado.getValue()));
+        return u;
+    }
+
     @Override
     public void limpiarCampos() {
-        txtNombre.clear();
-        txtCedula.clear();
-        txtUsername.clear();
-        txtPassword.clear();
+        usuarioSeleccionado = null;
+        txtNombre.clear(); txtCedula.clear(); txtUsername.clear(); txtPassword.clear();
         cbRol.getSelectionModel().clearSelection();
         cbEstado.getSelectionModel().clearSelection();
         listarUsuarios();
     }
 
-    /**
-     * Método vinculado al botón Limpiar en el FXML.
-     */
-    @FXML
-    private void handleLimpiar() {
-        limpiarCampos();
-    }
-
-    /**
-     * Método vinculado al botón Guardar en el FXML.
-     */
-    @FXML
-    private void handleGuardar() {
-        // Validación de campos obligatorios
-        if (txtUsername.getText().trim().isEmpty() || txtPassword.getText().isEmpty()) {
-            mostrarAlerta("Campos Vacíos", "El nombre de usuario y la contraseña son obligatorios.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        try {
-            Usuario nuevo = new Usuario();
-            nuevo.setNombre(txtNombre.getText().trim());
-            nuevo.setCedula(txtCedula.getText().trim());
-            nuevo.setUsername(txtUsername.getText().trim());
-            nuevo.setPassword(txtPassword.getText()); // La encriptación ocurre en el Service
-            nuevo.setRol(cbRol.getValue());
-            nuevo.setEstado(cbEstado.getValue());
-
-            // Delegamos la persistencia a la capa de servicio
-            usuarioService.crearUsuario(nuevo);
-
-            mostrarAlerta("Éxito", "Usuario registrado correctamente.", Alert.AlertType.INFORMATION);
-            limpiarCampos();
-
-        } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo completar el registro: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
-    }
-
-    /**
-     * Actualiza la tabla con los datos más recientes de la BD.
-     */
     private void listarUsuarios() {
         try {
             List<Usuario> lista = usuarioService.obtenerTodos();
             tableUsuarios.setItems(FXCollections.observableArrayList(lista));
         } catch (Exception e) {
-            System.err.println("Error al cargar la lista de usuarios: " + e.getMessage());
+            System.err.println("Error al cargar tabla: " + e.getMessage());
         }
     }
 }
