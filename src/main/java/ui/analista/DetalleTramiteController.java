@@ -23,6 +23,12 @@ public class DetalleTramiteController extends BaseController {
     private final RequisitoService requisitoService = new RequisitoService();
     private Tramite tramiteEncontrado;
 
+<<<<<<< HEAD
+=======
+    /**
+     * Implementación obligatoria del método abstracto.
+     */
+>>>>>>> c2b06fcb9d299383a4c094a7d25472c038b5fcc4
     @Override
     public void limpiarCampos() {
         txtBusquedaId.clear();
@@ -59,6 +65,7 @@ public class DetalleTramiteController extends BaseController {
                 return;
             }
 
+<<<<<<< HEAD
             // Validar que sean exactamente 10 dígitos numéricos
             if (!busqueda.matches("\\d{10}")) {
                 mostrarAlerta("Formato Incorrecto",
@@ -68,6 +75,9 @@ public class DetalleTramiteController extends BaseController {
             }
 
             List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
+=======
+            List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
+>>>>>>> c2b06fcb9d299383a4c094a7d25472c038b5fcc4
 
             if (resultados != null && !resultados.isEmpty()) {
                 tramiteEncontrado = resultados.get(0);
@@ -77,6 +87,7 @@ public class DetalleTramiteController extends BaseController {
                 lblCedula.setText("Cédula: " + tramiteEncontrado.getCedula());
                 lblEstadoActual.setText("Estado: " + tramiteEncontrado.getEstado().toUpperCase());
 
+<<<<<<< HEAD
                 // 2. Cargar Requisitos (Visualización histórica)
                 // Si el trámite ya pasó de 'pendiente', los requisitos están aprobados
                 boolean yaPasoRequisitos = !tramiteEncontrado.getEstado().equalsIgnoreCase("pendiente");
@@ -89,6 +100,8 @@ public class DetalleTramiteController extends BaseController {
                 txtNotaPractica.setText(tramiteEncontrado.getNotaPractica() > 0 ? String.valueOf(tramiteEncontrado.getNotaPractica()) : "");
 
                 // 4. Lógica de Bloqueo según estado (Control de flujo)
+=======
+>>>>>>> c2b06fcb9d299383a4c094a7d25472c038b5fcc4
                 String estado = tramiteEncontrado.getEstado().toLowerCase();
 
                 if (estado.equals("licencia_emitida") || estado.equals("aprobado")) {
@@ -107,8 +120,14 @@ public class DetalleTramiteController extends BaseController {
                 }
 
             } else {
+<<<<<<< HEAD
                 limpiarCampos();
                 mostrarAlerta("Sin Resultados", "No se encontró ningún trámite con la cédula ingresada.", Alert.AlertType.INFORMATION);
+=======
+                tramiteEncontrado = null;
+                btnGenerarLicencia.setDisable(true);
+                mostrarAlerta("No encontrado", "No existen trámites para la cédula: " + cedula, Alert.AlertType.INFORMATION);
+>>>>>>> c2b06fcb9d299383a4c094a7d25472c038b5fcc4
             }
         } catch (Exception e) {
             mostrarAlerta("Error de Sistema", "Ocurrió un error al consultar los datos: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -156,17 +175,43 @@ public class DetalleTramiteController extends BaseController {
     @FXML
     private void handleGenerarLicencia() {
         try {
+            // 1. Cargar el FXML de la vista Generar Licencia
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
             Parent root = loader.load();
+<<<<<<< HEAD
             ui.analista.GenerarLicenciaController controller = loader.getController();
             controller.initData(tramiteEncontrado);
 
+=======
+
+            // 2. OBTENER EL CONTROLADOR (Corregido a ui.analista para evitar ClassCastException)
+            ui.analista.GenerarLicenciaController controller = loader.getController();
+
+            // 3. Pasar los datos al nuevo controlador
+            if (controller != null) {
+                controller.initData(tramiteEncontrado);
+            }
+
+            // 4. Cambiamos el contenido del área central
+>>>>>>> c2b06fcb9d299383a4c094a7d25472c038b5fcc4
             StackPane contentArea = (StackPane) btnGenerarLicencia.getScene().lookup("#contentArea");
             if (contentArea != null) {
                 contentArea.getChildren().setAll(root);
             }
+
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error de Tipo", "El controlador del FXML no coincide con la clase esperada.", Alert.AlertType.ERROR);
         } catch (IOException e) {
+<<<<<<< HEAD
             mostrarAlerta("Navegación Fallida", "No se pudo abrir el módulo de emisión: " + e.getMessage(), Alert.AlertType.ERROR);
+=======
+            e.printStackTrace();
+            mostrarAlerta("Error de Carga", "No se pudo cargar la vista de la licencia.", Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error Crítico", "Ocurrió un error inesperado: " + e.getMessage(), Alert.AlertType.ERROR);
+>>>>>>> c2b06fcb9d299383a4c094a7d25472c038b5fcc4
         }
     }
 }
