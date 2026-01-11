@@ -1,85 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+<ScrollPane fitToWidth="true" style="-fx-background-color: #f4f7f6; -fx-background: #f4f7f6;"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ui.analista.DetalleTramiteController">
-    <children>
-        <ScrollPane fitToWidth="true" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" style="-fx-background-color: transparent;">
-            <content>
-                <VBox spacing="20" style="-fx-padding: 30; -fx-background-color: #f8f9fa;">
+    <content>
+        <VBox spacing="25" style="-fx-padding: 35;">
 
-                    <VBox spacing="5">
-                        <Label text="4.5 Búsqueda Detallada de Trámite" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="Consulta de historial, validación de requisitos y registro de calificaciones." style="-fx-text-fill: #7f8c8d;"/>
-                    </VBox>
+            <VBox spacing="5">
+                <Label text="BÚSQUEDA DETALLADA DE TRÁMITE"
+                       style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <Label text="Consulte el historial completo, gestione requisitos y emita el documento final."
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 14;"/>
+            </VBox>
 
-                    <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
-                        <Label text="Cédula de Identidad:" style="-fx-font-weight: bold; -fx-font-size: 14;" />
-                        <TextField fx:id="txtBusquedaId" prefWidth="200" promptText="Ej: 1712345678"
-                                   style="-fx-font-size: 14; -fx-background-radius: 5;"/>
-                        <Button text="🔍 Consultar Trámite" onAction="#handleBuscar"
-                                style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 20;"/>
-                        <Button text="Limpiar" onAction="#limpiarCampos"
-                                style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-cursor: hand;"/>
-                    </HBox>
+            <HBox spacing="15" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                <children>
+                    <Label text="Cédula de Identidad:" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                    <TextField fx:id="txtBusquedaId" prefHeight="35" prefWidth="220" promptText="Ej: 1712345678"
+                               style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;"/>
+                    <Button onAction="#handleBuscar" prefHeight="35" text="🔍 Consultar"
+                            style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5; -fx-padding: 0 20;"/>
+                    <Button onAction="#limpiarCampos" prefHeight="35" text="Limpiar"
+                            style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-text-fill: #7f8c8d; -fx-cursor: hand; -fx-padding: 0 20;"/>
+                </children>
+            </HBox>
 
-                    <TitledPane text="1. Datos del Solicitante y Estado Actual" collapsible="false" style="-fx-font-weight: bold; -fx-text-fill: #2980b9;">
-                        <GridPane hgap="30" vgap="15" style="-fx-padding: 15;">
-                            <VBox GridPane.columnIndex="0">
-                                <Label text="Nombre Completo:" style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
-                                <Label fx:id="lblNombre" text="---" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+            <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                <children>
+                    <Label text="1. INFORMACIÓN DEL SOLICITANTE" style="-fx-font-weight: bold; -fx-text-fill: #2980b9; -fx-font-size: 13;"/>
+                    <Separator opacity="0.4" />
+                    <GridPane hgap="40" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                        </columnConstraints>
+                        <children>
+                            <VBox spacing="5" GridPane.columnIndex="0">
+                                <Label text="NOMBRE COMPLETO" style="-fx-text-fill: #95a5a6; -fx-font-size: 11; -fx-font-weight: bold;"/>
+                                <Label fx:id="lblNombre" text="---" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
                             </VBox>
-                            <VBox GridPane.columnIndex="1">
-                                <Label text="Documento de Identidad:" style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
-                                <Label fx:id="lblCedula" text="---" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                            <VBox spacing="5" GridPane.columnIndex="1">
+                                <Label text="IDENTIFICACIÓN" style="-fx-text-fill: #95a5a6; -fx-font-size: 11; -fx-font-weight: bold;"/>
+                                <Label fx:id="lblCedula" text="---" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
                             </VBox>
-                            <VBox GridPane.columnIndex="2">
-                                <Label text="Estado del Trámite:" style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
+                            <VBox spacing="5" GridPane.columnIndex="2">
+                                <Label text="ESTADO DEL TRÁMITE" style="-fx-text-fill: #95a5a6; -fx-font-size: 11; -fx-font-weight: bold;"/>
                                 <Label fx:id="lblEstadoActual" text="---" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #e67e22;"/>
                             </VBox>
-                        </GridPane>
-                    </TitledPane>
+                        </children>
+                    </GridPane>
+                </children>
+            </VBox>
 
-                    <HBox spacing="20">
-                        <TitledPane text="2. Verificación de Requisitos" collapsible="false" HBox.hgrow="ALWAYS">
-                            <VBox spacing="15" style="-fx-padding: 15;">
-                                <CheckBox fx:id="chkFotos" text="Fotografías tamaño carnet (Fondo blanco)" style="-fx-font-size: 13;"/>
-                                <CheckBox fx:id="chkCertificado" text="Certificado de Instrucción Básica" style="-fx-font-size: 13;"/>
-                                <CheckBox fx:id="chkMultas" text="Validación de No adeudar multas" style="-fx-font-size: 13;"/>
-                                <Separator />
-                                <Button fx:id="btnGuardarReq" text="Actualizar Requisitos" onAction="#handleGuardarRequisitos"
-                                        style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" maxWidth="Infinity"/>
+            <HBox spacing="25">
+                <children>
+                    <VBox HBox.hgrow="ALWAYS" spacing="20" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                        <children>
+                            <Label text="2. VERIFICACIÓN DE REQUISITOS" style="-fx-font-weight: bold; -fx-text-fill: #2980b9; -fx-font-size: 13;"/>
+                            <Separator opacity="0.4" />
+                            <VBox spacing="15">
+                                <CheckBox fx:id="chkFotos" text="Fotografías tamaño carnet" style="-fx-font-size: 13; -fx-cursor: hand;"/>
+                                <CheckBox fx:id="chkCertificado" text="Certificado de Instrucción Básica" style="-fx-font-size: 13; -fx-cursor: hand;"/>
+                                <CheckBox fx:id="chkMultas" text="Validación de No adeudar multas" style="-fx-font-size: 13; -fx-cursor: hand;"/>
                             </VBox>
-                        </TitledPane>
+                            <Button fx:id="btnGuardarReq" onAction="#handleGuardarRequisitos" maxWidth="Infinity" prefHeight="40" text="Actualizar Requisitos"
+                                    style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                        </children>
+                    </VBox>
 
-                        <TitledPane text="3. Calificaciones de Evaluación" collapsible="false" HBox.hgrow="ALWAYS">
-                            <VBox spacing="15" style="-fx-padding: 15;">
-                                <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <Label text="Examen Teórico:" prefWidth="110" style="-fx-font-size: 13;"/>
-                                    <TextField fx:id="txtNotaTeorica" prefWidth="80" promptText="0.00" style="-fx-alignment: center;"/>
+                    <VBox HBox.hgrow="ALWAYS" spacing="20" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+                        <children>
+                            <Label text="3. CALIFICACIONES" style="-fx-font-weight: bold; -fx-text-fill: #2980b9; -fx-font-size: 13;"/>
+                            <Separator opacity="0.4" />
+                            <VBox spacing="15">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label prefWidth="120" text="Examen Teórico:" style="-fx-text-fill: #34495e;"/>
+                                    <TextField fx:id="txtNotaTeorica" alignment="CENTER" prefHeight="35" prefWidth="80" promptText="0.00" style="-fx-background-radius: 5; -fx-font-weight: bold;"/>
                                 </HBox>
-                                <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <Label text="Examen Práctico:" prefWidth="110" style="-fx-font-size: 13;"/>
-                                    <TextField fx:id="txtNotaPractica" prefWidth="80" promptText="0.00" style="-fx-alignment: center;"/>
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label prefWidth="120" text="Examen Práctico:" style="-fx-text-fill: #34495e;"/>
+                                    <TextField fx:id="txtNotaPractica" alignment="CENTER" prefHeight="35" prefWidth="80" promptText="0.00" style="-fx-background-radius: 5; -fx-font-weight: bold;"/>
                                 </HBox>
-                                <Separator />
-                                <Button fx:id="btnGuardarNotas" text="Registrar Calificaciones" onAction="#handleGuardarNotas"
-                                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" maxWidth="Infinity"/>
                             </VBox>
-                        </TitledPane>
-                    </HBox>
+                            <Button fx:id="btnGuardarNotas" onAction="#handleGuardarNotas" maxWidth="Infinity" prefHeight="40" text="Registrar Notas"
+                                    style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                        </children>
+                    </VBox>
+                </children>
+            </HBox>
 
-                    <StackPane style="-fx-padding: 20 0 0 0;">
-                        <Button fx:id="btnGenerarLicencia" text="🖨️ EMITIR LICENCIA DE CONDUCIR" onAction="#handleGenerarLicencia"
-                                prefHeight="60" prefWidth="450" disable="true"
-                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);"/>
-                    </StackPane>
+            <VBox alignment="CENTER" spacing="15" style="-fx-padding: 20 0 0 0;">
+                <children>
+                    <Button fx:id="btnGenerarLicencia" disable="true" onAction="#handleGenerarLicencia" prefHeight="65" prefWidth="500" text="EMITIR LICENCIA DE CONDUCIR"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.3), 15, 0, 0, 8);"/>
+                    <Label text="* El botón se activará solo cuando todos los requisitos y notas sean aprobatorios."
+                           style="-fx-text-fill: #95a5a6; -fx-font-size: 12; -fx-font-style: italic;"/>
+                </children>
+            </VBox>
 
-                </VBox>
-            </content>
-        </ScrollPane>
-    </children>
-</AnchorPane>
+        </VBox>
+    </content>
+</ScrollPane>

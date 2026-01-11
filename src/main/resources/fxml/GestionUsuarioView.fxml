@@ -1,42 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox spacing="20" style="-fx-padding: 25; -fx-background-color: white;"
-      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ui.admin.GestionUsuarioController">
+<ScrollPane fitToWidth="true" style="-fx-background-color: #f4f7f6; -fx-background: #f4f7f6;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.admin.GestionUsuarioController">
+    <content>
+        <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: #f4f7f6;">
+            <children>
+                <VBox spacing="2">
+                    <Label text="CONTROL DE ACCESO Y USUARIOS"
+                           style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    <Label text="Administración de cuentas y permisos del personal."
+                           style="-fx-text-fill: #95a5a6; -fx-font-size: 13;"/>
+                </VBox>
 
-    <Label text="Gestión de Usuarios" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <VBox maxWidth="1100" spacing="20" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
+                    <children>
+                        <GridPane hgap="20" vgap="12">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" percentWidth="12" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="38" />
+                                <ColumnConstraints halignment="RIGHT" percentWidth="12" />
+                                <ColumnConstraints hgrow="ALWAYS" percentWidth="38" />
+                            </columnConstraints>
 
-    <GridPane hgap="15" vgap="15">
-        <columnConstraints>
-            <ColumnConstraints prefWidth="80"/> <ColumnConstraints hgrow="ALWAYS"/>
-            <ColumnConstraints prefWidth="80"/> <ColumnConstraints hgrow="ALWAYS"/>
-        </columnConstraints>
+                            <children>
+                                <Label text="Nombre:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <TextField fx:id="txtNombre" prefHeight="32" promptText="Nombres y Apellidos"
+                                           style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-        <Label text="Nombre:"/> <TextField fx:id="txtNombre" GridPane.columnIndex="1"/>
-        <Label text="Cédula:" GridPane.columnIndex="2"/> <TextField fx:id="txtCedula" GridPane.columnIndex="3"/>
+                                <Label text="Cédula:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                                <TextField fx:id="txtCedula" prefHeight="32" promptText="Identificación"
+                                           style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
 
-        <Label text="Username:" GridPane.rowIndex="1"/> <TextField fx:id="txtUsername" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="Password:" GridPane.columnIndex="2" GridPane.rowIndex="1"/> <PasswordField fx:id="txtPassword" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                                <Label text="Username:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.rowIndex="1"/>
+                                <TextField fx:id="txtUsername" prefHeight="32" promptText="Usuario"
+                                           style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-        <Label text="Rol:" GridPane.rowIndex="2"/> <ComboBox fx:id="cbRol" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        <Label text="Estado:" GridPane.columnIndex="2" GridPane.rowIndex="2"/> <ComboBox fx:id="cbEstado" prefWidth="200" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-    </GridPane>
+                                <Label text="Password:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                                <PasswordField fx:id="txtPassword" prefHeight="32" promptText="Contraseña"
+                                               style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
 
-    <HBox spacing="15" alignment="CENTER">
-        <Button text="💾 Guardar Nuevo" onAction="#handleGuardar" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-        <Button text="🔄 Actualizar Datos" onAction="#handleActualizar" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-        <Button text="🧹 Limpiar" onAction="#limpiarCampos" style="-fx-padding: 10 20;"/>
-    </HBox>
+                                <Label text="Rol:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.rowIndex="2"/>
+                                <ComboBox fx:id="cbRol" prefHeight="32" prefWidth="Infinity" promptText="Seleccionar..."
+                                          style="-fx-background-color: white; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-    <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="colNombre" text="Nombre Completo" prefWidth="180"/>
-            <TableColumn fx:id="colCedula" text="Cédula" prefWidth="100"/>
-            <TableColumn fx:id="colUsername" text="Usuario" prefWidth="100"/>
-            <TableColumn fx:id="colRol" text="Rol" prefWidth="100"/>
-            <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
-        </columns>
-    </TableView>
-</VBox>
+                                <Label text="Estado:" style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                <ComboBox fx:id="cbEstado" prefHeight="32" prefWidth="Infinity" promptText="Estado"
+                                          style="-fx-background-color: white; -fx-border-color: #dcdde1; -fx-border-radius: 5;" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+                            </children>
+                        </GridPane>
+
+                        <HBox spacing="12" alignment="CENTER_RIGHT">
+                            <children>
+                                <Button onAction="#limpiarCampos" prefHeight="35" minWidth="100" text="Limpiar"
+                                        style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-text-fill: #7f8c8d; -fx-font-size: 13; -fx-cursor: hand;"/>
+
+                                <Button onAction="#handleActualizar" prefHeight="35" minWidth="150" text="Actualizar Datos"
+                                        style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 13; -fx-cursor: hand;"/>
+
+                                <Button onAction="#handleGuardar" prefHeight="35" minWidth="150" text="Guardar Nuevo"
+                                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 13; -fx-cursor: hand;"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <VBox VBox.vgrow="ALWAYS" minHeight="300" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 4);">
+                    <children>
+                        <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                            <columns>
+                                <TableColumn fx:id="colNombre" text="Nombre Completo" />
+                                <TableColumn fx:id="colCedula" text="Cédula" maxWidth="150" minWidth="100" style="-fx-alignment: CENTER;" />
+                                <TableColumn fx:id="colUsername" text="Usuario" maxWidth="150" minWidth="100" style="-fx-alignment: CENTER;" />
+                                <TableColumn fx:id="colRol" text="Rol" maxWidth="150" minWidth="100" style="-fx-alignment: CENTER;" />
+                                <TableColumn fx:id="colEstado" text="Estado" maxWidth="120" minWidth="80" style="-fx-alignment: CENTER;" />
+                            </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                            </columnResizePolicy>
+                        </TableView>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

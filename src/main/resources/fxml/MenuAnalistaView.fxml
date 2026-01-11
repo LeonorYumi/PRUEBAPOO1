@@ -1,75 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="650.0" prefWidth="900.0" stylesheets="@../css/app.css"
-            xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane prefHeight="750.0" prefWidth="1100.0" style="-fx-background-color: #f8f9fa;"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ui.analista.AnalistaController">
 
     <top>
-        <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 10;">
-            <Label text="PANEL DE CONTROL - ANALISTA DE MATRICULACIÓN" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCerrarSesion" text="Cerrar Sesión" onAction="#handleCerrarSesion"
-                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 5;" />
+        <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="20"
+              style="-fx-background-color: white; -fx-padding: 0 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
+            <children>
+                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/logo.png" />
+                    </image>
+                </ImageView>
+                <VBox alignment="CENTER_LEFT">
+                    <Label text="SISTEMA DE LICENCIAS" style="-fx-text-fill: #2c3e50; -fx-font-weight: bold; -fx-font-size: 16px;" />
+                    <Label text="Módulo de Atención y Matriculación" style="-fx-text-fill: #95a5a6; -fx-font-size: 11px;" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <HBox alignment="CENTER" spacing="15">
+                    <VBox alignment="CENTER_RIGHT">
+                        <Label text="Analista Operativo" style="-fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+                        <Label text="Terminal Autorizada" style="-fx-text-fill: #3498db; -fx-font-size: 10px;" />
+                    </VBox>
+                    <Button fx:id="btnCerrarSesion" onAction="#handleCerrarSesion" prefHeight="35.0" text="Cerrar Sesión"
+                            style="-fx-background-color: transparent; -fx-border-color: #e74c3c; -fx-border-radius: 20; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 0 20;" />
+                </HBox>
+            </children>
         </HBox>
     </top>
 
     <left>
-        <VBox spacing="10" style="-fx-background-color: #ecf0f1; -fx-padding: 15;" prefWidth="220.0">
-            <Label text="OPERACIONES" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" />
+        <VBox prefWidth="260.0" spacing="8" style="-fx-background-color: #2c3e50; -fx-padding: 25 15;">
+            <children>
+                <Label text="TRÁMITES" style="-fx-text-fill: #7f8c8d; -fx-font-weight: bold; -fx-font-size: 10px; -fx-padding: 0 0 5 10;" />
 
-            <Button text="👤 Registrar Solicitante"
-                    onAction="#handleIrARegistro"
-                    maxWidth="Infinity"
-                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#handleIrARegistro" prefHeight="45.0" text="Registrar Solicitante"
+                        style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-cursor: hand; -fx-font-size: 13px; -fx-background-radius: 8; -fx-padding: 0 0 0 20;" />
 
-            <Button text="📋 Verificar Requisitos"
-                    onAction="#handleIrAVerificar"
-                    maxWidth="Infinity"
-                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#handleIrAVerificar" prefHeight="45.0" text="Verificar Requisitos"
+                        style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-cursor: hand; -fx-font-size: 13px; -fx-background-radius: 8; -fx-padding: 0 0 0 20;" />
 
-            <Button text="📝 Registrar Exámenes"
-                    onAction="#handleIrAExamenes"
-                    maxWidth="Infinity"
-                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#handleIrAExamenes" prefHeight="45.0" text="Registrar Exámenes"
+                        style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-cursor: hand; -fx-font-size: 13px; -fx-background-radius: 8; -fx-padding: 0 0 0 20;" />
 
-            <Separator />
-            <Label text="SEGUIMIENTO" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" />
+                <Separator opacity="0.1" style="-fx-padding: 15 0;" />
 
-            <Button text="🔍 Gestión de Trámites"
-                    onAction="#handleIrAGestion"
-                    maxWidth="Infinity"
-                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+                <Label text="SEGUIMIENTO" style="-fx-text-fill: #7f8c8d; -fx-font-weight: bold; -fx-font-size: 10px; -fx-padding: 0 0 5 10;" />
 
-            <Button text="📑 Detalle de Trámite"
-                    onAction="#handleIrADetalleBusqueda"
-                    maxWidth="Infinity"
-                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT;" />
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#handleIrAGestion" prefHeight="45.0" text="Gestión de Trámites"
+                        style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-cursor: hand; -fx-font-size: 13px; -fx-background-radius: 8; -fx-padding: 0 0 0 20;" />
 
-            <Separator />
-            <Label text="FINALIZACIÓN" style="-fx-font-weight: bold; -fx-text-fill: #7f8c8d;" />
+                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" onAction="#handleIrADetalleBusqueda" prefHeight="45.0" text="Detalle de Trámite"
+                        style="-fx-background-color: transparent; -fx-text-fill: #ecf0f1; -fx-cursor: hand; -fx-font-size: 13px; -fx-background-radius: 8; -fx-padding: 0 0 0 20;" />
 
-            <Button text="Generar Licencia"
-                    onAction="#handleIrAGenerarLicencia"
-                    maxWidth="Infinity"
-                    style="-fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-background-color: #d5dbdb;" />
+                <Separator opacity="0.1" style="-fx-padding: 15 0;" />
+
+                <Button alignment="CENTER" maxWidth="Infinity" onAction="#handleIrAGenerarLicencia" prefHeight="45.0" text="GENERAR LICENCIA"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 13px;" />
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox alignment="CENTER" spacing="5" style="-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 15; -fx-background-radius: 10;">
+                    <children>
+                        <Label text="Estado del Servicio" style="-fx-text-fill: #95a5a6; -fx-font-size: 10px;" />
+                        <Label text="CONECTADO" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 11px;" />
+                    </children>
+                </VBox>
+            </children>
         </VBox>
     </left>
 
     <center>
-        <StackPane fx:id="contentArea" style="-fx-background-color: white; -fx-padding: 20;">
+        <StackPane fx:id="contentArea" style="-fx-background-color: #f4f7f6;">
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
             <children>
-                <VBox alignment="CENTER" spacing="15">
-                    <ImageView fitHeight="150.0" fitWidth="150.0" opacity="0.15">
-                        <image>
-                            <Image url="@../images/logo.png" />
-                        </image>
-                    </ImageView>
-                    <Label text="Bienvenido, Analista" style="-fx-font-size: 24px; -fx-text-fill: #34495e; -fx-font-weight: bold;" />
-                    <Label text="Seleccione una operación del menú lateral para comenzar" style="-fx-text-fill: #bdc3c7; -fx-font-size: 16px;" />
+                <VBox alignment="CENTER" spacing="25" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 0);">
+                    <children>
+                        <ImageView fitHeight="150.0" fitWidth="150.0" opacity="0.1">
+                            <image>
+                                <Image url="@../images/logo.png"/>
+                            </image>
+                        </ImageView>
+
+                        <VBox alignment="CENTER" spacing="10">
+                            <children>
+                                <Label text="BIENVENIDO, ANALISTA"
+                                       style="-fx-text-fill: #2c3e50; -fx-font-size: 28px; -fx-font-weight: bold; -fx-font-family: 'System';" />
+                                <Separator maxWidth="200" style="-fx-opacity: 0.3;" />
+                                <Label text="Inicie un nuevo proceso o consulte trámites existentes en el menú lateral."
+                                       style="-fx-text-fill: #7f8c8d; -fx-font-size: 15px;" />
+                            </children>
+                        </VBox>
+                    </children>
                 </VBox>
             </children>
         </StackPane>

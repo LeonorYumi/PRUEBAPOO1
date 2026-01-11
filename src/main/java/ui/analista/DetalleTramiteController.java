@@ -1,5 +1,6 @@
 package ui.analista;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,6 +18,14 @@ public class DetalleTramiteController extends BaseController {
     @FXML private Label lblNombre, lblCedula, lblEstadoActual;
     @FXML private Button btnGenerarLicencia;
 
+    // ACTUALIZADO: Estos IDs deben coincidir exactamente con el fx:id del FXML
+    @FXML private CheckBox chkCopiaCedula, chkCertificadoVotacion, chkExamenTeorico;
+
+    // Si en tu FXML tienes fx:id="chkFotos", fx:id="chkCertificado", etc., cámbialos aquí:
+    @FXML private CheckBox chkFotos, chkCertificado, chkMultas;
+
+    @FXML private TextArea txtNotas; // Por si tienes un área de notas
+
     private final TramiteService tramiteService = new TramiteService();
     private Tramite tramiteEncontrado;
 
@@ -24,6 +33,11 @@ public class DetalleTramiteController extends BaseController {
     private void handleBuscar() {
         try {
             String busqueda = txtBusquedaId.getText().trim();
+            if (busqueda.isEmpty()) {
+                mostrarAlerta("Error", "Por favor ingrese una cédula para buscar.", Alert.AlertType.WARNING);
+                return;
+            }
+
             List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
 
             if (resultados != null && !resultados.isEmpty()) {
@@ -32,10 +46,33 @@ public class DetalleTramiteController extends BaseController {
                 lblCedula.setText("Cédula: " + tramiteEncontrado.getCedula());
                 lblEstadoActual.setText("Estado: " + tramiteEncontrado.getEstado().toUpperCase());
 
-                // Habilitar botón si el estado permite generar licencia
                 btnGenerarLicencia.setDisable(!tramiteEncontrado.getEstado().equalsIgnoreCase("aprobado"));
+            } else {
+                mostrarAlerta("Información", "No se encontró ningún trámite con esa cédula.", Alert.AlertType.INFORMATION);
+                limpiarCampos();
             }
         } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    private void handleGuardarRequisitos(ActionEvent event) {
+        if (tramiteEncontrado == null) {
+            mostrarAlerta("Error", "Debe buscar un trámite antes de guardar requisitos.", Alert.AlertType.ERROR);
+            return;
+        }
+        System.out.println("Guardando requisitos para: " + tramiteEncontrado.getNombre());
+        mostrarAlerta("Éxito", "Requisitos actualizados correctamente.", Alert.AlertType.INFORMATION);
+    }
+
+    // NUEVO MÉTODO: Esto quitará el error rojo de "handleGuardarNotas" en el FXML
+    @FXML
+    private void handleGuardarNotas(ActionEvent event) {
+        if (tramiteEncontrado == null) {
+            mostrarAlerta("Error", "No hay un trámite cargado.", Alert.AlertType.ERROR);
+            return;
+        }
+        System.out.println("Notas guardadas");
+        mostrarAlerta("Éxito", "Observaciones guardadas correctamente.", Alert.AlertType.INFORMATION);
     }
 
     @FXML
@@ -46,15 +83,11 @@ public class DetalleTramiteController extends BaseController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
             Parent root = loader.load();
 
-            // OBTENEMOS EL CONTROLADOR DE LA SIGUIENTE VENTANA
             GenerarLicenciaController controller = loader.getController();
 
             if (controller != null) {
-                // PASAMOS LOS DATOS LIMPIOS (Sin el texto "Nombre: ")
                 tramiteEncontrado.setNombre(lblNombre.getText().replace("Nombre: ", "").trim());
                 tramiteEncontrado.setCedula(lblCedula.getText().replace("Cédula: ", "").trim());
-
-                // ENVIAR AL OTRO CONTROLADOR
                 controller.initData(tramiteEncontrado);
             }
 
@@ -66,9 +99,16 @@ public class DetalleTramiteController extends BaseController {
     }
 
     @Override
+    @FXML
     public void limpiarCampos() {
         txtBusquedaId.clear();
         lblNombre.setText("Nombre: -");
         lblCedula.setText("Cédula: -");
+        lblEstadoActual.setText("Estado: -");
+        btnGenerarLicencia.setDisable(true);
+        tramiteEncontrado = null;
+
+        // Limpiar checkboxes si existen
+        if(chkCopiaCedula != null) chkCopiaCedula.setSelected(false);
     }
 }

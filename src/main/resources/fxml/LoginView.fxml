@@ -1,59 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 <?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
 
-<AnchorPane prefHeight="550.0" prefWidth="400.0" styleClass="main-container"
-            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="ui.login.LoginController">
+<StackPane prefHeight="600.0" prefWidth="850.0" style="-fx-background-color: #f0f2f5;"
+           xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="ui.login.LoginController">
+
+    <stylesheets>
+        <URL value="@../css/app.css" />
+    </stylesheets>
+
     <children>
-        <VBox alignment="CENTER" spacing="20.0" layoutX="50.0" layoutY="40.0" prefWidth="300.0">
+        <VBox alignment="CENTER" maxHeight="560.0" maxWidth="480.0" spacing="25.0" styleClass="card">
+            <padding>
+                <Insets bottom="40.0" left="45.0" right="45.0" top="40.0" />
+            </padding>
+            <children>
+                <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/logo.png" />
+                    </image>
+                </ImageView>
 
-            <ImageView fitHeight="110.0" fitWidth="110.0" pickOnBounds="true" preserveRatio="true">
-                <image>
-                    <Image url="@../images/logo.png" />
-                </image>
-            </ImageView>
+                <VBox alignment="CENTER" spacing="5.0">
+                    <Label text="SISTEMA DE LICENCIAS" styleClass="header-label" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+                    <Label text="Bienvenido, por favor identifíquese" styleClass="subheader-label" />
+                </VBox>
 
-            <VBox alignment="CENTER" spacing="5.0">
-                <Label text="SISTEMA DE LICENCIAS" styleClass="header-label"
-                       style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                <Label text="Inicio de Sesión Seguro" styleClass="subheader-label"
-                       style="-fx-text-fill: #7f8c8d;" />
-            </VBox>
+                <VBox spacing="18.0">
+                    <VBox spacing="8.0">
+                        <Label text="Tipo de Usuario" styleClass="field-label" style="-fx-font-weight: bold;" />
+                        <ComboBox fx:id="comboUsuario" maxWidth="Infinity" prefHeight="48.0" promptText="Seleccione su rol..." styleClass="input-field">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Administrador" />
+                                    <String fx:value="Analista" />
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                    </VBox>
 
-            <Separator prefWidth="250.0" />
+                    <VBox spacing="8.0">
+                        <Label text="Usuario" styleClass="field-label" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="txtUsuario" prefHeight="48.0" promptText="Nombre de usuario" styleClass="input-field" />
+                    </VBox>
 
-            <VBox spacing="10.0" alignment="CENTER_LEFT">
-                <Label text="Tipo de Usuario:" styleClass="field-label" style="-fx-font-weight: bold;" />
-                <ComboBox fx:id="comboUsuario" prefWidth="300.0" promptText="Seleccione su rol...">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Administrador" />
-                            <String fx:value="Analista" />
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+                    <VBox spacing="8.0">
+                        <Label text="Contraseña" styleClass="field-label" style="-fx-font-weight: bold;" />
+                        <PasswordField fx:id="txtPassword" prefHeight="48.0" promptText="••••••••" styleClass="input-field" />
+                    </VBox>
+                </VBox>
 
-                <Label text="Usuario:" styleClass="field-label" style="-fx-font-weight: bold;" />
-                <TextField fx:id="txtUsuario" promptText="Ingrese su usuario" prefHeight="35.0" />
-
-                <Label text="Contraseña:" styleClass="field-label" style="-fx-font-weight: bold;" />
-                <PasswordField fx:id="txtPassword" promptText="Ingrese su contraseña" prefHeight="35.0" />
-            </VBox>
-
-            <VBox spacing="12.0" prefWidth="300.0" style="-fx-padding: 10 0 0 0;">
-                <Button fx:id="btnLogin" onAction="#handleLogin" prefHeight="45.0" prefWidth="300.0"
-                        text="INGRESAR AL SISTEMA"
-                        style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
-
-                <Button fx:id="btnSalir" onAction="#handleExit" prefHeight="40.0" prefWidth="300.0"
-                        text="SALIR"
-                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
-            </VBox>
-
+                <VBox spacing="12.0" style="-fx-padding: 5 0 0 0;">
+                    <Button fx:id="btnLogin" maxWidth="Infinity" onAction="#handleLogin" prefHeight="50.0" text="INGRESAR AL SISTEMA" styleClass="login-button" />
+                    <Button fx:id="btnSalir" maxWidth="Infinity" onAction="#handleExit" prefHeight="45.0" text="SALIR" styleClass="button-logout" />
+                </VBox>
+            </children>
         </VBox>
     </children>
-</AnchorPane>
+</StackPane>

@@ -1,39 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Line?>
 
-<VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 30; -fx-background-color: white;"
+<VBox spacing="0" alignment="TOP_CENTER" style="-fx-background-color: #f4f7f6;"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ui.analista.RegistrarSolicitanteController">
 
-    <Label text="REGISTRO DE NUEVO SOLICITANTE" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-    <Label text="Complete los datos para iniciar el trámite de licencia" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
+    <VBox spacing="5" style="-fx-padding: 0 0 25 0;">
+        <Label text="REGISTRO DE NUEVO SOLICITANTE"
+               style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        <Label text="Ingrese la información del ciudadano para iniciar el proceso de emisión."
+               style="-fx-font-size: 14; -fx-text-fill: #95a5a6;"/>
+    </VBox>
 
-    <GridPane hgap="15" vgap="15" alignment="CENTER">
-        <Label text="Cédula / DNI:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;"/>
-        <TextField fx:id="txtCedula" promptText="Ingrese 10 dígitos" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+    <VBox maxWidth="650" spacing="30"
+          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 40; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);">
 
-        <Label text="Nombre Completo:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;"/>
-        <TextField fx:id="txtNombre" promptText="Nombres y Apellidos" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <children>
+            <GridPane hgap="25" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="150" prefWidth="180" />
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
 
-        <Label text="Fecha de Nacimiento:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
-        <DatePicker fx:id="dateNacimiento" promptText="Seleccione fecha" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <children>
+                    <Label text="Cédula / DNI:" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                           style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;"/>
+                    <TextField fx:id="txtCedula" promptText="Ej: 1722445566" prefHeight="40"
+                               style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;"
+                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-        <Label text="Tipo de Licencia:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;"/>
-        <ComboBox fx:id="comboLicencia" prefWidth="200" promptText="Seleccione..." GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <Label text="Nombre Completo:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                           style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;"/>
+                    <TextField fx:id="txtNombre" promptText="Nombres y Apellidos completos" prefHeight="40"
+                               style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;"
+                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-        <Label text="Fecha Solicitud:" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-font-weight: bold;"/>
-        <DatePicker fx:id="dateSolicitud" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-    </GridPane>
+                    <Label text="Fecha de Nacimiento:" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                           style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;"/>
+                    <DatePicker fx:id="dateNacimiento" promptText="dd/mm/aaaa" prefHeight="40" maxWidth="Infinity"
+                                style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5;"
+                                GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
-    <HBox spacing="15" alignment="CENTER">
-        <Button text="⬅ Regresar" onAction="#handleRegresar"
-                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand;"/>
+                    <Label text="Tipo de Licencia:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                           style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;"/>
+                    <ComboBox fx:id="comboLicencia" promptText="Seleccione categoría..." prefHeight="40" maxWidth="Infinity"
+                              style="-fx-background-color: white; -fx-border-color: #dcdde1; -fx-border-radius: 5;"
+                              GridPane.columnIndex="1" GridPane.rowIndex="3"/>
 
-        <Button text="💾 Guardar Registro" onAction="#handleGuardar"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand;"/>
+                    <Label text="Fecha de Solicitud:" GridPane.columnIndex="0" GridPane.rowIndex="4"
+                           style="-fx-font-weight: bold; -fx-text-fill: #34495e; -fx-font-size: 13;"/>
+                    <DatePicker fx:id="dateSolicitud" prefHeight="40" maxWidth="Infinity" disable="true"
+                                style="-fx-background-radius: 5; -fx-border-color: #dcdde1; -fx-border-radius: 5; -fx-opacity: 0.8;"
+                                GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                </children>
+            </GridPane>
 
-        <Button text=" Limpiar Campos" onAction="#handleLimpiar"
-                style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand;"/>
-    </HBox>
+            <Separator prefWidth="200.0" style="-fx-opacity: 0.5;" />
+
+            <HBox spacing="15" alignment="CENTER_RIGHT">
+                <children>
+                    <Button text="Limpiar" onAction="#handleLimpiar" prefHeight="40" prefWidth="110"
+                            style="-fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-cursor: hand;"/>
+
+                    <Button text="⬅ Regresar" onAction="#handleRegresar" prefHeight="40" prefWidth="120"
+                            style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;"/>
+
+                    <Button text="💾 Guardar Solicitante" onAction="#handleGuardar" prefHeight="40" prefWidth="200"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.2), 10, 0, 0, 3);"/>
+                </children>
+            </HBox>
+        </children>
+    </VBox>
 </VBox>
