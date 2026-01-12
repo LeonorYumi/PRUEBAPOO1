@@ -6,9 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-/**
- * DAO para requisitos: create, update, findByTramite.
- */
+
 public class RequisitoDao {
 
     public Integer create(Requisito r) throws Exception {
