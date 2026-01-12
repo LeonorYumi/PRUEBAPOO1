@@ -8,9 +8,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO para examenes: create, findByTramite.
- */
+
 public class ExamenDao {
 
     public Integer create(Examen e) throws Exception {
