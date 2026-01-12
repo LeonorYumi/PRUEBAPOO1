@@ -15,24 +15,20 @@ import ui.admin.GenerarLicenciaController;
 import java.io.IOException;
 import java.net.URL;
 
-/**
- * Esta clase hereda de BaseController para reutilizar funciones comunes
- * como mostrar alertas y cumplir con el requisito de Herencia en la UI.
- */
+
 public class AnalistaController extends BaseController {
 
     @FXML private Button btnCerrarSesion;
     @FXML private StackPane contentArea;
 
-    // Implementación obligatoria del método abstracto de BaseController (Polimorfismo)
+    // Implementación obligatoria del metodo abstracto de BaseController (Polimorfismo)
     @Override
     public void limpiarCampos() {
-        // El panel principal no tiene campos de texto, pero cumplimos con la estructura
+        // El panel principal no tiene campos de texto
     }
 
     // --- MÉTODOS DE NAVEGACIÓN ---
-    // Usamos el mismo método cargarVista para no repetir código
-
+    // Usamos el mismo metodo cargarVista
     @FXML private void handleIrARegistro() { cargarVista("/fxml/RegistrarSolicitanteView.fxml"); }
     @FXML private void handleIrAVerificar() { cargarVista("/fxml/VerificarRequisitoView.fxml"); }
     @FXML private void handleIrAExamenes() { cargarVista("/fxml/RegistrarExamenView.fxml"); }
@@ -40,9 +36,7 @@ public class AnalistaController extends BaseController {
     @FXML private void handleIrADetalleBusqueda() { cargarVista("/fxml/DetalleTramiteView.fxml"); }
     @FXML private void handleIrAGenerarLicencia() { cargarVista("/fxml/GenerarLicenciaView.fxml"); }
 
-    /**
-     * Carga la pantalla de licencia enviando los datos del trámite seleccionado.
-     */
+
     public void cargarGenerarLicenciaConDatos(Tramite tramiteSeleccionado) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GenerarLicenciaView.fxml"));
@@ -54,14 +48,11 @@ public class AnalistaController extends BaseController {
 
             setContenido(root);
         } catch (IOException e) {
-            // USAMOS EL MÉTODO HEREDADO: mostrarAlerta(titulo, mensaje, tipo)
+            // USAMOS EL METODO HEREDADO: mostrarAlerta(titulo, mensaje, tipo)
             mostrarAlerta("Error de Navegación", "No se pudo cargar la vista de licencia.", Alert.AlertType.ERROR);
         }
     }
 
-    /**
-     * Método genérico para cargar archivos FXML en el centro de la pantalla.
-     */
     private void cargarVista(String ruta) {
         try {
             URL fxmlUrl = getClass().getResource(ruta);
@@ -79,9 +70,7 @@ public class AnalistaController extends BaseController {
         }
     }
 
-    /**
-     * Ajusta el tamaño de la nueva vista al tamaño del StackPane (Contenido dinámico).
-     */
+
     private void setContenido(Parent nodo) {
         if (contentArea != null) {
             if (nodo instanceof Region region) {
@@ -106,6 +95,4 @@ public class AnalistaController extends BaseController {
             mostrarAlerta("Error", "No se pudo volver al login.", Alert.AlertType.ERROR);
         }
     }
-
-    // NOTA: El método mostrarAlertaError fue eliminado porque ya se hereda de BaseController
 }

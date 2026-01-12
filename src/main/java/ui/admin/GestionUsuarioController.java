@@ -86,7 +86,7 @@ public class GestionUsuarioController extends BaseController {
         }
     }
 
-    // MÉTODO DE VALIDACIÓN: El cambio más importante
+    // METODO DE VALIDACIÓN
     private boolean validarCampos() {
         if (txtNombre.getText().isEmpty() || txtCedula.getText().isEmpty() ||
                 txtUsername.getText().isEmpty() || cbRol.getValue() == null || cbEstado.getValue() == null) {

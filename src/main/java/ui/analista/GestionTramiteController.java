@@ -148,7 +148,6 @@ public class GestionTramiteController extends BaseController {
                     return;
                 }
 
-                // CAMBIO: Se usa "rechazado" en lugar de "reprobado" para mantener consistencia
                 String resultado = (notas[0] >= 14 && notas[1] >= 14) ? "aprobado" : "rechazado";
                 tramiteService.registrarNotas(t.getId(), notas[0], notas[1], resultado);
                 cargarDatosReales();
@@ -187,7 +186,7 @@ public class GestionTramiteController extends BaseController {
 
     private void configurarFiltros() {
         if (comboFiltroEstado != null) {
-            // CAMBIO: Se reemplaza "reprobado" por "rechazado" en las opciones del ComboBox
+
             comboFiltroEstado.setItems(FXCollections.observableArrayList(
                     "Todos", "pendiente", "en_examenes", "aprobado", "rechazado", "licencia_emitida"
             ));
@@ -195,7 +194,6 @@ public class GestionTramiteController extends BaseController {
         }
     }
 
-    // Los métodos handleGenerarLicencia, handleVerDetalle y handleRegresar se mantienen igual...
     @FXML
     private void handleGenerarLicencia() {
         Tramite seleccionado = tablaTramites.getSelectionModel().getSelectedItem();

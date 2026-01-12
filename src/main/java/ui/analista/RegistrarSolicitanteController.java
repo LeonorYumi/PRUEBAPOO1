@@ -60,8 +60,6 @@ public class RegistrarSolicitanteController extends BaseController {
             nuevo.setTipoLicencia(comboLicencia.getValue());
             nuevo.setCreatedBy(1);
 
-            // IMPORTANTE: El Service debe ejecutar un SQL que inserte en
-            // la tabla 'solicitantes' y LUEGO en la tabla 'tramites' con estado 'pendiente'
             solicitanteService.registrarSolicitante(nuevo);
 
             mostrarAlerta("Éxito", "Solicitante y Trámite 'Pendiente' creados correctamente.", Alert.AlertType.INFORMATION);

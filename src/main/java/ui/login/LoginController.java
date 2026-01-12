@@ -94,7 +94,7 @@ public class LoginController {
         }
     }
 
-    // ACTUALIZADO: Manejador para el botón SALIR con confirmación
+    // Manejador para el botón SALIR con confirmación
     @FXML
     private void handleExit(ActionEvent event) {
         // Crear alerta de tipo confirmación

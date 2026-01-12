@@ -8,10 +8,7 @@ import service.TramiteService;
 import model.Tramite;
 import java.util.List;
 
-/**
- * Controlador para la validación de documentos y requisitos.
- * Diferencia entre trámites no encontrados y trámites ya procedentes.
- */
+
 public class VerificarRequisitoController extends BaseController {
 
     @FXML private TextField txtBusquedaId;
@@ -42,26 +39,26 @@ public class VerificarRequisitoController extends BaseController {
             lblNombreCliente.setText("");
             String cedula = txtBusquedaId.getText().trim();
 
-            // 1. Validación de formato de entrada
+            // Validación de formato de entrada
             if (cedula.length() != 10 || !cedula.matches("[0-9]+")) {
                 mostrarAlerta("Error de Formato", "Ingrese los 10 dígitos numéricos de la cédula.", Alert.AlertType.WARNING);
                 return;
             }
 
-            // 2. PRIMERA BÚSQUEDA: Trámites en estado 'pendiente' (Listos para validar)
+            // PRIMERA BÚSQUEDA: Trámites en estado 'pendiente' (Listos para validar)
             List<Tramite> pendientes = tramiteService.consultarTramitesReporte(null, null, "pendiente", "Todos", cedula);
 
             if (pendientes != null && !pendientes.isEmpty()) {
-                // CASO EXITOSO: Trámite listo para procesar
+                //  Trámite listo para procesar
                 tramiteEncontrado = pendientes.get(0);
                 lblNombreCliente.setText("Solicitante: " + tramiteEncontrado.getNombre());
                 lblNombreCliente.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold; -fx-font-size: 14;");
             } else {
-                // 3. SEGUNDA BÚSQUEDA: Si no hay pendientes, ver si la cédula existe en CUALQUIER otro estado
+                // Si no hay pendientes, ver si la cédula existe en CUALQUIER otro estado
                 List<Tramite> historial = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", cedula);
 
                 if (historial != null && !historial.isEmpty()) {
-                    // CASO: El trámite ya pasó esta fase (Ya es PROCEDENTE o RECHAZADO)
+                    // En caso de que el trámite ya pasó esta fase (Ya es PROCEDENTE o RECHAZADO)
                     Tramite actual = historial.get(0);
                     String estadoActual = actual.getEstado().toUpperCase();
 
@@ -72,7 +69,7 @@ public class VerificarRequisitoController extends BaseController {
                             "El solicitante " + actual.getNombre() + " ya registra un trámite en estado: " + estadoActual,
                             Alert.AlertType.INFORMATION);
                 } else {
-                    // CASO: La cédula no existe en la base de datos
+                    // enn caso que en la cédula no existe en la base de datos
                     lblNombreCliente.setText("TRÁMITE NO ENCONTRADO EN EL SISTEMA");
                     lblNombreCliente.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 14;");
 
@@ -120,9 +117,6 @@ public class VerificarRequisitoController extends BaseController {
         procesarTramiteAdaptado();
     }
 
-    /**
-     * Lógica que conecta con el RequisitoService.
-     */
     private void procesarTramiteAdaptado() {
         try {
             // El Service usa !multas para determinar procedencia

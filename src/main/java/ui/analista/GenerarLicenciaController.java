@@ -33,9 +33,7 @@ public class GenerarLicenciaController {
     // Mantenemos el tramite cargado para usar sus datos en PDF y mostrar
     private Tramite tramiteActivo;
 
-    public GenerarLicenciaController() {
-        // Constructor vacío
-    }
+    public GenerarLicenciaController() {}
 
     @FXML
     private void initialize() {
@@ -44,9 +42,8 @@ public class GenerarLicenciaController {
         if (btnGenerar != null) btnGenerar.setDisable(true);
     }
 
-    /**
-     * Recibe el trámite seleccionado desde la pantalla anterior.
-     */
+    //Recibe el trámite seleccionado desde la pantalla anterior.
+
     public void initData(Tramite tramite) {
         this.tramiteActivo = tramite;
         if (tramite != null) {
@@ -54,7 +51,6 @@ public class GenerarLicenciaController {
             lblNombreConductor.setText(tramite.getNombre() != null ? tramite.getNombre().toUpperCase() : "---");
             lblNumeroLicencia.setText(tramite.getCedula() != null ? tramite.getCedula() : "---");
 
-            // CORRECCIÓN: Se quita la palabra "TIPO " manual para que no se duplique con el FXML
             lblTipoLicencia.setText(tramite.getTipoLicencia() != null ? tramite.getTipoLicencia() : "-");
 
             // Usamos la fecha que está en el trámite si existe
@@ -123,9 +119,9 @@ public class GenerarLicenciaController {
         }
     }
 
-    /**
-     * Búsqueda rápida: ahora consulta el servicio para traer datos reales y llama initData(tramite).
-     */
+
+     // Búsqueda rápida consulta el servicio para traer datos reales y llama initData(tramite).
+
     @FXML
     private void handleBuscarRapido() {
         try {
@@ -160,17 +156,14 @@ public class GenerarLicenciaController {
         }
     }
 
-    /**
-     * EXPORTAR PDF: restaurado al método que tenía antes (escribe PDF con PrintWriter).
-     * Usa los textos actuales de las Labels para generar el archivo.
-     */
+
+    // EXPORTAR PDF
     @FXML
     private void handleExportarPDF() {
         // Si hay un tramiteActivo, preferimos sus datos
         String cedula = (tramiteActivo != null && tramiteActivo.getCedula() != null) ? tramiteActivo.getCedula() : lblNumeroLicencia.getText();
         String nombre = (tramiteActivo != null && tramiteActivo.getNombre() != null) ? tramiteActivo.getNombre() : lblNombreConductor.getText();
 
-        // Obtenemos el valor del label (que ahora solo tiene "Tipo B")
         String tipoValor = lblTipoLicencia.getText();
 
         String fEmision = lblFechaEmision.getText();
@@ -199,8 +192,6 @@ public class GenerarLicenciaController {
 
                 pw.println("/F1 10 Tf");
 
-                // --- CORRECCIÓN AQUÍ ---
-                // Se agrega el texto "TIPO: " antes del valor para que aparezca en el PDF
                 pw.println("0 -40 Td (TIPO: " + tipoValor + ") Tj");
 
                 pw.println("0 -20 Td (CEDULA: " + cedula + ") Tj");
@@ -232,7 +223,7 @@ public class GenerarLicenciaController {
         }
     }
 
-    // Método auxiliar para mostrar alertas
+    // Metodo auxiliar para mostrar alertas
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert a = new Alert(tipo);
         a.setTitle(titulo);

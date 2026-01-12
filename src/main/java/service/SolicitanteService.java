@@ -33,8 +33,6 @@ public class SolicitanteService {
             throw new Exception("El solicitante debe ser mayor de edad (" + EDAD_MINIMA + " años).");
         }
 
-        // --- AQUÍ ESTABA EL ERROR ---
-        // Cambiamos 'insertarConTramite' por 'create' para que coincida con tu DAO
         return dao.create(s);
     }
 }

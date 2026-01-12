@@ -6,17 +6,12 @@ import java.sql.*;
 
 /**
  * Servicio para guardar o actualizar requisitos de un trámite.
- * Si los requisitos son correctos (certificado + pago y sin multas) cambia estado a 'en_examenes',
- * en caso contrario a 'rechazado'.
  */
 public class RequisitoService {
 
     public RequisitoService() {}
 
-    /**
-     * Guarda o actualiza los requisitos relacionados a un trámite.
-     * creadoPor puede ser null si no hay sesión disponible.
-     */
+
     public void guardarRequisitos(int idTramite, boolean certificadoMedico, boolean pago, boolean multas, String observaciones, Integer creadoPor) throws Exception {
         String sqlSelect = "SELECT id FROM requisitos WHERE tramite_id = ?";
         String sqlInsert = "INSERT INTO requisitos (tramite_id, certificado_medico, pago, multas, observaciones, created_by) VALUES (?, ?, ?, ?, ?, ?)";

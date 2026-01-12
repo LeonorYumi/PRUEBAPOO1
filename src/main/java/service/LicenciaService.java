@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class LicenciaService {
 
-    // El método recibe 2 parámetros para coincidir con el controlador
+    // El metodo recibe 2 parámetros para coincidir con el controlador
     public Licencia generarLicencia(int tramiteId, int usuarioId) throws Exception {
         String sqlL = "INSERT INTO licencias (tramite_id, fecha_emision, fecha_vencimiento, numero) VALUES (?, ?, ?, ?)";
         String sqlT = "UPDATE tramites SET estado = 'licencia_emitida' WHERE id = ?";

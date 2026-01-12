@@ -58,7 +58,7 @@ public class GenerarLicenciaController extends BaseController { // <--- EXTENDS
             lblFechaEmision.setText(licenciaGenerada.getFechaEmision().format(fmt));
             lblFechaVencimiento.setText(licenciaGenerada.getFechaVencimiento().format(fmt));
 
-            // USAMOS EL MÉTODO HEREDADO
+            // USAMOS EL METODO HEREDADO
             mostrarAlerta("Éxito", "Licencia generada oficialmente: " + licenciaGenerada.getNumeroLicencia(), Alert.AlertType.INFORMATION);
 
             btnGenerar.setDisable(true);

@@ -25,12 +25,10 @@ public class DetalleTramiteController extends BaseController {
     private final TramiteService tramiteService = new TramiteService();
     private Tramite tramiteEncontrado;
 
-    /**
-     * Inicializa el controlador y configura el filtro de entrada para la cédula.
-     */
+
     @FXML
     public void initialize() {
-        // MEJORA: Solo permite números y máximo 10 caracteres mientras el usuario escribe
+        // Solo permite números y máximo 10 caracteres mientras el usuario escribe
         txtBusquedaId.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 txtBusquedaId.setText(newValue.replaceAll("[^\\d]", ""));
@@ -72,7 +70,7 @@ public class DetalleTramiteController extends BaseController {
                 // Habilitar botón solo si está aprobado
                 btnGenerarLicencia.setDisable(!tramiteEncontrado.getEstado().equalsIgnoreCase("aprobado"));
             } else {
-                // Ahora este mensaje solo sale cuando la cédula es de 10 dígitos pero no existe
+                // este mensaje solo sale cuando la cédula es de 10 dígitos pero no existe
                 mostrarAlerta("Información", "No se encontró ningún trámite registrado con la cédula: " + busqueda, Alert.AlertType.INFORMATION);
                 limpiarCampos();
             }

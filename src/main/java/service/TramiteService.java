@@ -14,9 +14,8 @@ public class TramiteService {
     // Regla de negocio: Nota mínima 14/20
     private static final double NOTA_MINIMA = 14.0;
 
-    /**
-     * Consulta trámites con filtros dinámicos.
-     */
+    //Consulta trámites con filtros dinámicos.
+
     public List<Tramite> consultarTramitesReporte(LocalDate inicio, LocalDate fin, String estado, String tipo, String cedula) throws Exception {
         List<Tramite> lista = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
@@ -62,9 +61,7 @@ public class TramiteService {
         return consultarTramitesReporte(null, null, "Todos", "Todos", null);
     }
 
-    /**
-     * SOLUCIÓN ERROR: Método para actualizar solo el estado (Validación de Requisitos).
-     */
+    //Metodo para actualizar solo el estado (Validación de Requisitos).
     public void actualizarEstado(int idTramite, String nuevoEstado) throws Exception {
         String sql = "UPDATE tramites SET estado = ? WHERE id = ?";
         try (Connection con = Conexion.getConexion();
@@ -75,25 +72,19 @@ public class TramiteService {
         }
     }
 
-    /**
-     * SOLUCIÓN ERROR: Método para registrar notas y resultado (Gestión de Trámites).
-     */
+
+   // Metodo para registrar notas y resultado (Gestión de Trámites).
     public void registrarNotas(int idTramite, double notaT, double notaP, String resultado) throws Exception {
         registrarExamenCompleto(idTramite, notaT, notaP, resultado);
     }
 
-    /**
-     * SOLUCIÓN ERROR: Método compatible con RegistrarExamenController.
-     */
     public void registrarExamen(int idTramite, double notaT, double notaP) throws Exception {
         // Calcula el resultado automáticamente basándose en la constante NOTA_MINIMA
         String resultado = (notaT >= NOTA_MINIMA && notaP >= NOTA_MINIMA) ? "aprobado" : "reprobado";
         registrarExamenCompleto(idTramite, notaT, notaP, resultado);
     }
 
-    /**
-     * SOLUCIÓN ERROR: Búsqueda por ID para RegistrarExamenController.
-     */
+
     public Tramite buscarTramitePorId(int id) throws Exception {
         String sql = "SELECT t.id, s.nombre, t.estado, t.tipo_licencia FROM tramites t JOIN solicitantes s ON t.solicitante_id = s.id WHERE t.id = ?";
         try (Connection con = Conexion.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -112,9 +103,7 @@ public class TramiteService {
         return null;
     }
 
-    /**
-     * Lógica centralizada para persistencia de exámenes y actualización de estado.
-     */
+
     private void registrarExamenCompleto(int idTramite, double notaT, double notaP, String resultado) throws Exception {
         try (Connection con = Conexion.getConexion()) {
             con.setAutoCommit(false);

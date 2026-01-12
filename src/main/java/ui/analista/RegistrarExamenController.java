@@ -48,7 +48,7 @@ public class RegistrarExamenController extends BaseController {
         try {
             String busqueda = txtBusquedaId.getText().trim();
 
-            // VALIDACIÓN DE 10 DÍGITOS (Requerimiento solicitado)
+            // VALIDACIÓN DE 10 DÍGITOS
             if (busqueda.length() != 10 || !busqueda.matches("[0-9]+")) {
                 lblNombreCliente.setText("INGRESE LOS 10 DÍGITOS CORRECTAMENTE");
                 lblNombreCliente.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
@@ -56,7 +56,7 @@ public class RegistrarExamenController extends BaseController {
                 return;
             }
 
-            // Búsqueda robusta tras pasar la validación
+            // Búsqueda
             List<Tramite> resultados = tramiteService.consultarTramitesReporte(null, null, "Todos", "Todos", busqueda);
 
             if (resultados != null && !resultados.isEmpty()) {

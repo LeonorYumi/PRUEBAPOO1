@@ -18,7 +18,7 @@ public class AdminController extends BaseController {
 
     @Override
     public void limpiarCampos() {
-        // Método requerido por la herencia de BaseController
+        // Metodo requerido por la herencia de BaseController
     }
 
     private void cargarVista(String fxmlPath) {
@@ -39,18 +39,18 @@ public class AdminController extends BaseController {
         }
     }
 
-    // --- OPERACIONES DE TRÁMITE ---
+    //  OPERACIONES DE TRÁMITE
     @FXML private void handleRegistrarSolicitante() { cargarVista("/fxml/RegistrarSolicitanteView.fxml"); }
     @FXML private void handleVerificarRequisitos() { cargarVista("/fxml/VerificarRequisitoView.fxml"); }
     @FXML private void handleRegistrarExamenes() { cargarVista("/fxml/RegistrarExamenView.fxml"); }
     @FXML private void handleGestionTramites() { cargarVista("/fxml/GestionTramiteView.fxml"); }
     @FXML private void handleGenerarLicencia() { cargarVista("/fxml/GenerarLicenciaView.fxml"); }
 
-    // --- CONTROL ADMINISTRATIVO ---
+    //  CONTROL ADMINISTRATIVO
     @FXML private void handleGestionUsuarios() { cargarVista("/fxml/GestionUsuarioView.fxml"); }
     @FXML private void handleReportes() { cargarVista("/fxml/ReporteAdminView.fxml"); }
 
-    // El método handleDashboard ha sido eliminado correctamente.
+    // El metodo handleDashboard ha sido eliminado correctamente.
 
     @FXML
     private void handleCerrarSesion() {
