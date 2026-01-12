@@ -7,9 +7,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-/**
- * DAO para licencias: create, findByTramite, findByNumero.
- */
+
 public class LicenciaDao {
 
     public Integer create(Licencia l) throws Exception {
