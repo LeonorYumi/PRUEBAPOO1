@@ -11,7 +11,7 @@ public class ConexionTest {
         try (Connection c = Conexion.getConexion()) {
 
             if (c == null) {
-                System.out.println("❌ No hay conexión");
+                System.out.println(" No hay conexión");
                 return;
             }
 
@@ -19,11 +19,11 @@ public class ConexionTest {
             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM usuarios");
 
             if (rs.next()) {
-                System.out.println("✅ BD FUNCIONA - Usuarios registrados: " + rs.getInt(1));
+                System.out.println(" BD FUNCIONA - Usuarios registrados: " + rs.getInt(1));
             }
 
         } catch (Exception e) {
-            System.out.println("❌ Error al consultar BD");
+            System.out.println(" Error al consultar BD");
             e.printStackTrace();
         }
     }
