@@ -1,4 +1,4 @@
-# SISTEMA DE GESTIÓN DE LICENCIAS DE CONDUCIR – PROYECTO POO
+# SISTEMA DE GESTIÓN DE LICENCIAS – PROYECTO POO
 
 Aplicación de escritorio desarrollada en Java para la simulación y gestión integral del proceso de emisión de licencias de conducir. El sistema permite administrar usuarios, solicitantes, trámites, exámenes y licencias aplicando principios de Programación Orientada a Objetos y la arquitectura MVC.
 
@@ -100,4 +100,5 @@ Rol Administrador
 Rol Analista
 - Usuario: `analista`
 - Contraseña: `analista123`
+
 
