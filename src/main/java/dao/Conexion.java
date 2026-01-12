@@ -16,10 +16,10 @@ public class Conexion {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver"); // 🔥 CLAVE
             Connection con = DriverManager.getConnection(URL, USER, PASS);
-            System.out.println("✅ CONEXIÓN EXITOSA A MYSQL");
+            System.out.println("CONEXIÓN EXITOSA A MYSQL");
             return con;
         } catch (Exception e) {
-            System.out.println("❌ ERROR DE CONEXIÓN A MYSQL");
+            System.out.println(" ERROR DE CONEXIÓN A MYSQL");
             e.printStackTrace();
             return null;
         }
