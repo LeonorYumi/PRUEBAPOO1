@@ -14,7 +14,7 @@ public class Conexion {
 
     public static Connection getConexion() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); // 🔥 CLAVE
+            Class.forName("com.mysql.cj.jdbc.Driver"); 
             Connection con = DriverManager.getConnection(URL, USER, PASS);
             System.out.println("CONEXIÓN EXITOSA A MYSQL");
             return con;
